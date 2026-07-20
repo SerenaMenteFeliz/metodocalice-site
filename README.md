@@ -1,7 +1,8 @@
-# metodo-calice-site
+# metodocalice-site
 
 Site de captura do Método Cálice (renomeado de `quiz-metodo-calice` em 20/07 —
-1 repo por produto, artefatos de funil como paths). Quiz de diagnóstico ("qual
+1 repo por produto, artefatos de funil como paths; slug sem hífen, igual
+`larinterior-site`). Quiz de diagnóstico ("qual
 código está rodando em você") — canal de captura pro Método Cálice, link na
 bio da Ge. Mesmo padrão de infra do `larinterior-site`: HTML estático + função
 serverless na Vercel, sem framework.
