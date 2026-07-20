@@ -34,8 +34,9 @@ Slugs de resultado: `aprovador`, `sabotador`, `ausente`, `controlador`.
   ver `Arquitetura - Dados e Tracking.md` no vault pro padrão: 1 subdomínio por
   produto, artefatos de funil como paths dentro dele). Aguardando só o registro
   DNS `A metodocalice 76.76.21.21` no Registro.br (ação do Yan).
-- Repo local com git, **sem remote no GitHub** ainda (deploy é via `vercel --prod`
-  direto do CLI, não CI).
+- **GitHub conectado** (`SerenaMenteFeliz/metodocalice-site`, público — Hobby plan exige)
+  e ligado à Vercel via `vercel git connect`. Push em `main` = redeploy automático
+  em produção, testado e confirmado.
 
 ## Pendências conhecidas
 
