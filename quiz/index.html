@@ -734,7 +734,11 @@
     }
     if (current.dataset.bridge) {
       var b = BRIDGES[current.dataset.bridge];
-      current.querySelector('[data-bridge-quote]').textContent = withName(b.lead, b.rest);
+      // Bridges 6 e pivot ficam sem nome — 4 telas seguidas usando o nome (6, pivot,
+      // loading, reveal) soou repetitivo; nome permanece só nas bridges 1 e 4.
+      var bridgeKey = current.dataset.bridge;
+      current.querySelector('[data-bridge-quote]').textContent =
+        (bridgeKey === '6' || bridgeKey === 'pivot') ? (b.lead + b.rest) : withName(b.lead, b.rest);
     }
     // Nome ecoado nas 2 perguntas mais pesadas (P7 e P8) — só nelas, pra não virar mala-direta
     if (current.dataset.kind === 'quiz') {
@@ -788,10 +792,9 @@
     }
     requestAnimationFrame(tick);
 
-    var name = localStorage.getItem('quiz_name') || '';
     var phraseEl = document.getElementById('loadingPhrase');
     var phrases = [
-      name ? name + ', lendo suas respostas...' : 'Lendo suas respostas...',
+      'Lendo suas respostas...',
       'Reconhecendo o padrão...',
       'Encontrando onde ele começou...',
       'Preparando o seu código...'
@@ -816,7 +819,7 @@
     setTimeout(function () {
       clearInterval(phraseTimer);
       var result = computeResult();
-      swapPhrase(name ? name + ', encontramos.' : 'Encontramos.');
+      swapPhrase('Encontramos.');
       percentEl.textContent = '100%';
       ringFill.style.strokeDashoffset = 0;
       populateReveal(result);
@@ -833,9 +836,8 @@
   }
 
   function populateResult(result) {
-    var name = localStorage.getItem('quiz_name') || '';
     document.getElementById('resultBadgeImg').src = '../assets/img/' + RESULTS[result].img;
-    document.getElementById('resultTag').textContent = (name ? name + ', seu' : 'Seu') + ' código instalado é:';
+    document.getElementById('resultTag').textContent = 'Seu código instalado é:';
     document.getElementById('resultArchetype').textContent = RESULTS[result].label;
     var body = document.getElementById('resultBody');
     body.innerHTML = RESULTS[result].corpo.map(function (p) { return '<p>' + p + '</p>'; }).join('');
