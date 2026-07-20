@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Descubra seu código instalado · Método Cálice</title>
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Jost:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* Tokens reais do tema "Santuário + Véu" (Método Cálice) — ver
+     .claude/skills/quiz-funnel-designer/references/visual-identity-serena.md */
+  :root {
+    --bg: #faf6fb;
+    --veil-0: #fdfcfe;
+    --veil-1: #faf6fb;
+    --veil-2: #f7efe3;
+    --ink: #453d57;
+    --accent: #8a6d3e;
+    --gold: #d9a854;
+    --gold-soft: #e7c77a;
+    --surface: #ffffff;
+    --surface-dark-1: #2b1e42;
+    --surface-dark-2: #4a2e63;
+    --surface-dark-fg: #fbf6f0;
+    --glass: rgba(255, 255, 255, .62);
+    --glass-strong: rgba(255, 255, 255, .82);
+    --glass-border: rgba(255, 255, 255, .9);
+    --shadow-tint: rgba(155, 130, 200, .4);
+    --lavender: #c9bbe8;
+    --error: #b3453f;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-label: 'Jost', sans-serif;
+    --font-ui: 'Manrope', -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: var(--font-ui);
+    color: var(--ink);
+    background: linear-gradient(170deg, var(--veil-0) 0%, var(--veil-1) 55%, var(--veil-2) 100%);
+    background-attachment: fixed;
+    line-height: 1.55;
+  }
+  #app { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+
+  /* ---------- barra de progresso (fixa no topo; outline fica na trilha em si, não numa linha divisória) ---------- */
+  .progress-shell {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    padding: 16px 20px 14px;
+    background: linear-gradient(170deg, var(--veil-0) 0%, var(--veil-1) 100%);
+    transition: opacity .2s ease;
+  }
+  /* escondida no hook (step 0) e nos cards de transição (pausas honestas + virada de
+     esperança) — não fazem parte da contagem das 8 perguntas, a barra ali confundia */
+  .progress-shell.is-hidden { opacity: 0; pointer-events: none; }
+  /* trava a largura da trilha no mesmo max-width do conteúdo (.wrap) — em telas
+     largas a barra esticada ponta-a-ponta perdia relação visual com o resto */
+  .progress-inner { max-width: 480px; margin: 0 auto; }
+  .progress-track {
+    height: 6px; background: var(--glass); border: 1px solid var(--glass-border);
+    border-bottom: 2px solid rgba(154, 130, 200, .38);
+    border-radius: 999px; overflow: hidden;
+  }
+  .progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--gold-soft)); transition: width .3s ease; }
+  .progress-count { font-family: var(--font-label); font-size: 12px; letter-spacing: .03em; color: var(--accent); margin: 8px 2px 0; }
+
+  /* ---------- footer legal (fixo embaixo, discreto) ---------- */
+  .legal-footer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    text-align: center; padding: 10px 20px;
+    font-family: var(--font-label); font-size: 11px; color: var(--ink); opacity: .5; letter-spacing: .01em;
+    background: linear-gradient(0deg, var(--veil-2) 55%, rgba(247,239,227,0) 100%);
+  }
+
+  /* ---------- zona de conteúdo: entre a barra fixa no topo e o footer fixo embaixo, sempre centralizada ---------- */
+  #steps { flex: 1; display: flex; flex-direction: column; padding-top: 60px; padding-bottom: 50px; overflow-y: auto; }
+  [data-step] { display: none; flex: 1; }
+  [data-step].is-active { display: flex; }
+  /* entrada: fade + leve subida. saída: só fade, mais rápido (a troca real de
+     step só acontece depois que a saída termina — ver goToStep no JS) */
+  [data-step].is-enter { animation: step-in .45s cubic-bezier(.16,1,.3,1); }
+  [data-step].is-leaving { opacity: 0; transition: opacity .16s ease; }
+  @keyframes step-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-step].is-enter { animation: none; }
+    [data-step].is-leaving { transition: none; }
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 28px 20px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+  }
+  .eyebrow { font-family: var(--font-label); font-size: 13px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 12px; }
+  /* revelação parcial: mesma frase do resultado ("X, seu código instalado é:"), serifada
+     itálica pra não ficar burocrático como as outras eyebrows (Processando, tags) */
+  #revealEyebrow { font-family: var(--font-display); font-style: italic; font-weight: 600; font-size: 18px; text-transform: none; letter-spacing: 0; }
+  /* h1 = momento curto/emocional (abertura, nome do arquétipo) → serifada.
+     h2 = frase longa que precisa ser lida rápido (pergunta, prompt de captura) → sans,
+     mais peso, mais entrelinha. Serifada em frase comprida lê bonito mas lento — regra
+     registrada em references/visual-identity-serena.md. */
+  h1 { font-family: var(--font-display); font-weight: 700; font-size: 31px; line-height: 1.22; margin: 0 0 14px; color: var(--ink); }
+  h1 em { font-style: italic; color: var(--accent); }
+  h2 { font-family: var(--font-display); font-weight: 700; font-size: 24px; line-height: 1.42; margin: 0 0 20px; }
+  /* títulos das perguntas (steps de seleção): serifada ficou pesada/lenta pra leitura
+     rápida de frase comprida — sans, mais peso, mais entrelinha, como a regra original
+     de h2 já previa (ver comentário acima) */
+  h2.q-title { font-family: var(--font-ui); font-weight: 700; font-size: 20px; line-height: 1.48; }
+  /* nome/e-mail: serifada já no peso máximo carregado (700) — o stroke fino reforça
+     a massa da letra sem trocar de fonte nem cair em negrito sintético */
+  h2.cap-title { -webkit-text-stroke: .4px currentColor; }
+  p.lead { font-family: var(--font-ui); font-size: 16px; color: var(--ink); opacity: .78; margin: 0 0 28px; }
+  /* subheadline de dor (logo abaixo do h1) — mais peso pra não competir em silêncio com o h1 */
+  p.lead.lead-strong { font-weight: 600; opacity: .94; }
+  /* highlight pontual em texto corrido */
+  .mark { font-weight: 700; color: var(--accent); }
+
+  /* ---------- placeholder de imagem (explícito, nunca vazio/genérico) ---------- */
+  .img-placeholder {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px;
+    width: 100%;
+    border-radius: 22px;
+    border: 1.5px dashed var(--lavender);
+    background: var(--glass);
+    color: var(--accent);
+    text-align: center;
+    padding: 18px;
+    margin: 0 0 26px;
+    overflow: hidden;
+  }
+  .img-placeholder .glow { position: absolute; inset: -30% -10% auto -10%; height: 140%; background: radial-gradient(circle, rgba(201,187,232,.5), transparent 65%); pointer-events: none; }
+  .img-placeholder span.ico { font-size: 30px; }
+  .img-placeholder small { font-family: var(--font-label); font-size: 12px; opacity: .75; max-width: 260px; }
+  .img-hero { aspect-ratio: 3/4; max-width: 176px; margin: 0 auto 22px; }
+  /* moldura pra mídia final (não placeholder) — mesmo espírito do dashed dos
+     placeholders, mas em dourado: intencional/decorativo, não "provisório" */
+  .media-frame {
+    max-width: 176px;
+    margin: 0 auto 22px;
+    padding: 5px;
+    border: 1.5px dashed var(--gold);
+    border-radius: 24px;
+  }
+  .media-frame img { display: block; width: 100%; border-radius: 20px; }
+  .img-badge, .result-orb { aspect-ratio: 3/4; }
+  .img-badge img, .result-orb img { height: 100%; object-fit: cover; }
+  .img-badge { max-width: 208px; margin: 0 auto 24px; }
+  .img-cover { aspect-ratio: 3/4; max-width: 220px; margin: 0 auto 28px; }
+  .img-envelope { aspect-ratio: 1/1; max-width: 140px; margin: 0 auto 22px; }
+
+  /* ---------- pausas honestas / virada de esperança: bloco tipo citação, não texto solto ---------- */
+  .bridge-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 28px 22px 24px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 14px 30px -20px var(--shadow-tint);
+    margin: 0 0 22px;
+  }
+  .bridge-img { width: 148px; height: 148px; margin: 0 auto 20px; padding: 4px; border-radius: 9999px; }
+  .bridge-img .ico { font-size: 56px; }
+  .bridge-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 9999px; }
+  .bridge-quote {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 21px;
+    line-height: 1.5;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ---------- loading do resultado: anel de progresso circular (0%→100% no centro) + frases ---------- */
+  .loading-ring-wrap { position: relative; width: 128px; height: 128px; margin: 0 auto 22px; }
+  .loading-ring { position: relative; width: 100%; height: 100%; transform: rotate(-90deg); }
+  .loading-ring-track { fill: none; stroke: var(--glass); stroke-width: 8; }
+  .loading-ring-fill {
+    fill: none; stroke: url(#loadingRingGrad); stroke-width: 8; stroke-linecap: round;
+    stroke-dasharray: 339.292; stroke-dashoffset: 339.292;
+  }
+  .loading-percent {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 600; font-size: 34px; color: var(--ink);
+  }
+  .loading-phrase {
+    font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 17px;
+    color: var(--ink); opacity: .82;
+    min-height: 24px; margin: 0 0 4px; transition: opacity .22s ease;
+  }
+  .loading-phrase.is-swapping { opacity: 0; }
+
+  /* ---------- opções de quiz (glass card + emoji) ---------- */
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    padding: 15px 16px;
+    margin-bottom: 11px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px -16px var(--shadow-tint);
+    font-family: var(--font-ui);
+    font-size: 15px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .option:hover { border-color: var(--gold); background: var(--glass-strong); }
+  .option:active { transform: scale(.98); }
+  .option .emoji { font-size: 20px; flex: 0 0 auto; }
+  /* ---------- botão primário (card de contraste, nunca preto genérico) ---------- */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 16px 20px;
+    text-align: center;
+    background: linear-gradient(160deg, var(--surface-dark-1), var(--surface-dark-2));
+    color: var(--surface-dark-fg);
+    font-family: var(--font-label);
+    font-size: 15.5px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    border: 0;
+    border-radius: 9999px;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    box-shadow: 0 12px 26px -14px var(--shadow-tint);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 16px 30px -14px var(--shadow-tint); }
+  .btn:active { transform: translateY(0) scale(.99); }
+  .btn-narrow { width: auto; min-width: 250px; max-width: 340px; margin: 0 auto; }
+  .btn-pulse { animation: btn-pulse-soft 2.6s ease-in-out infinite; }
+  .btn-pulse:hover { animation-play-state: paused; }
+  @keyframes btn-pulse-soft { 0%, 100% { transform: scale(1); box-shadow: 0 12px 26px -14px var(--shadow-tint); } 50% { transform: scale(1.03); box-shadow: 0 16px 32px -14px var(--shadow-tint); } }
+
+  /* ---------- captura ---------- */
+  .field { margin-bottom: 16px; }
+  .label { display: block; font-family: var(--font-label); font-size: 13.5px; font-weight: 600; margin-bottom: 7px; color: var(--ink); }
+  .input {
+    width: 100%;
+    padding: 14px 15px;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    border: 1.5px solid var(--glass-border);
+    background: var(--surface);
+    border-radius: 13px;
+    outline: none;
+    box-sizing: border-box;
+  }
+  .input:focus { border-color: var(--gold); }
+  .input.invalid { border-color: var(--error); background: #fdf3f2; }
+  [data-email-msg] { display: none; font-family: var(--font-label); font-size: 12px; color: var(--error); margin-top: 7px; }
+  [data-email-msg].show { display: block; }
+  [data-email-suggestion] { display: none; font-family: var(--font-label); font-size: 13px; color: var(--ink); opacity: .75; margin-top: 8px; }
+  [data-email-suggestion].show { display: block; }
+  [data-email-suggestion] button { background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: var(--accent); text-decoration: underline; cursor: pointer; }
+  .disclaimer { font-family: var(--font-label); font-size: 10.5px; color: var(--ink); opacity: .6; margin: -6px 0 18px; }
+
+  /* ---------- loading ---------- */
+  .center { text-align: center; }
+
+  /* ---------- resultado ---------- */
+  .result-orb {
+    max-width: 152px; margin: 0 auto 20px;
+    box-shadow: 0 14px 28px -18px var(--shadow-tint);
+    animation: float-slow 7s ease-in-out infinite;
+  }
+  @keyframes float-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  @media (prefers-reduced-motion: reduce) { .result-orb { animation: none; } }
+  .result-card {
+    background: linear-gradient(160deg, rgba(43,30,66,.94), rgba(74,46,99,.88));
+    color: var(--surface-dark-fg);
+    border-radius: 20px;
+    padding: 22px 22px 4px;
+    margin-bottom: 22px;
+    box-shadow: 0 20px 40px -22px var(--shadow-tint);
+  }
+  .result-tag { display: inline-block; font-family: var(--font-display); font-style: italic; font-weight: 600; font-size: 17px; color: var(--gold-soft); margin-bottom: 10px; }
+  .result-lead { font-family: var(--font-ui); font-size: 15.5px; color: var(--surface-dark-fg); opacity: .85; margin: 0 0 4px; }
+  .result-archetype { font-family: var(--font-display); font-weight: 700; font-style: italic; font-size: 27px; line-height: 1.25; color: var(--surface-dark-fg); margin: 0 0 16px; }
+  .result-body p { margin: 0 0 16px; font-size: 15.5px; color: var(--surface-dark-fg); opacity: .92; }
+
+  /* ---------- mobile-first: ajustes pra telas estreitas (iPhone SE/mini, ~360-390px) ---------- */
+  @media (max-width: 380px) {
+    .progress-shell { padding: 14px 16px 12px; }
+    #steps { padding-top: 52px; padding-bottom: 46px; }
+    .wrap { padding: 22px 16px 34px; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 21px; }
+    h2.q-title { font-size: 18px; }
+    .img-hero { max-width: 148px; }
+    .media-frame { max-width: 148px; }
+    .btn { padding: 14px 18px; font-size: 15px; }
+    .btn-narrow { min-width: 210px; }
+    .bridge-card { padding: 24px 18px 20px; }
+    .bridge-quote { font-size: 19px; }
+    .bridge-img { width: 116px; height: 116px; }
+    .loading-ring-wrap { width: 108px; height: 108px; }
+    .img-badge { max-width: 160px; }
+    .result-orb { max-width: 116px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="progress-shell">
+    <div class="progress-inner">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+  <div id="steps"></div>
+  <footer class="legal-footer">Método Cálice · Política de Privacidade · Termos de Uso</footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- Dados: as 8 perguntas (copy da Ge, ordem de opção fixa: Aprovador · Sabotador · Ausente · Controlador) ----------
+  // Emoji escolhido por CONTEÚDO de cada opção (não por posição/arquétipo) — ver
+  // convenção "emoji por opção" em references/visual-identity-serena.md
+  var QUESTIONS = [
+    {
+      texto: 'Quando alguém te pede algo que você não quer fazer, você normalmente:',
+      opcoes: [
+        { texto: 'Diz sim pra não decepcionar', emoji: '🤝' },
+        { texto: 'Fica procrastinando até a situação se resolver sozinha', emoji: '⏳' },
+        { texto: 'Faz no automático, sem nem pensar se quer ou não', emoji: '🤖' },
+        { texto: 'Analisa muito antes de responder pra não perder o controle', emoji: '🧠' }
+      ]
+    },
+    {
+      texto: 'Quando está muito perto de alcançar algo importante, o que acontece?',
+      opcoes: [
+        { texto: 'Me preocupo com o que os outros vão achar', emoji: '👀' },
+        { texto: 'Começo a me perguntar se mereço realmente', emoji: '❓' },
+        { texto: 'Percebo que nem sei mais o que queria de verdade', emoji: '🌫️' },
+        { texto: 'Fico ansiosa e começo a controlar cada detalhe', emoji: '🎯' }
+      ]
+    },
+    {
+      texto: 'Qual dessas frases mais soa como sua voz interna?',
+      opcoes: [
+        { texto: '"Não quero criar conflito."', emoji: '🕊️' },
+        { texto: '"Não sou suficiente pra isso."', emoji: '💭' },
+        { texto: '"Não sei bem o que eu sinto sobre isso."', emoji: '🌀' },
+        { texto: '"E se der errado?"', emoji: '⚠️' }
+      ]
+    },
+    {
+      texto: 'Quando recebe um elogio genuíno, você:',
+      opcoes: [
+        { texto: 'Fica feliz mas logo pensa "será que foi sincero?"', emoji: '🤔' },
+        { texto: 'Desvia o assunto ou minimiza', emoji: '🙈' },
+        { texto: 'Sente pouca coisa, como se não chegasse até você', emoji: '🫥' },
+        { texto: 'Aceita mas já começa a se cobrar pra manter o padrão', emoji: '📈' }
+      ]
+    },
+    {
+      texto: 'Como é sua relação com mudança?',
+      opcoes: [
+        { texto: 'Quero, mas sempre depende do que as pessoas próximas vão achar', emoji: '👥' },
+        { texto: 'Quero, mas sempre aparece um motivo pra adiar', emoji: '🚧' },
+        { texto: 'Às vezes nem percebo que algo precisa mudar', emoji: '😶' },
+        { texto: 'Só mudo quando tenho controle total do processo', emoji: '🗺️' }
+      ]
+    },
+    {
+      texto: 'No final de um dia comum, você geralmente sente:',
+      opcoes: [
+        { texto: 'Que fez tudo pelos outros mas esqueceu de você', emoji: '💔' },
+        { texto: 'Um vazio difícil de nomear', emoji: '🕳️' },
+        { texto: 'Que devia ter feito mais, aproveitado mais', emoji: '⏰' },
+        { texto: 'Que as coisas não saíram exatamente como planejou', emoji: '📋' }
+      ]
+    },
+    {
+      texto: 'Qual palavra mais descreve como você se sente quando pensa na sua vida hoje?',
+      opcoes: [
+        { texto: 'Esgotada', emoji: '🪫' },
+        { texto: 'Perdida', emoji: '🧭' },
+        { texto: 'Presa', emoji: '🔒' },
+        { texto: 'Ansiosa', emoji: '🌪️' }
+      ]
+    },
+    {
+      texto: 'Quando imagina ser completamente você, sem filtro, sem audiência: o que aparece?',
+      opcoes: [
+        { texto: 'Medo de que as pessoas não gostem', emoji: '😨' },
+        { texto: 'Dúvida se essa pessoa existe de verdade', emoji: '❔' },
+        { texto: 'Não sei bem quem essa pessoa é', emoji: '🎭' },
+        { texto: 'Desconforto com não saber o que vai acontecer', emoji: '🌊' }
+      ]
+    }
+  ];
+
+  var ARCHETYPES = ['aprovador', 'sabotador', 'ausente', 'controlador'];
+
+  // ---------- Dados: os 4 resultados (copy da Ge, intacta) + badge do arquétipo ----------
+  var RESULTS = {
+    aprovador: {
+      label: 'A Aprovadora',
+      img: 'badge-aprovador.webp',
+      corpo: [
+        'Você aprendeu cedo que ser amada é mais seguro do que ser você.',
+        'Então foi ajustando. A voz, os limites, as escolhas. Sempre com um olho no que os outros precisam de você. Sempre disponível. Sempre "tá bom."',
+        'O resultado? Uma vida construída em torno da aprovação alheia. E um cansaço que nenhum descanso resolve, porque não é cansaço físico. É o cansaço de carregar uma versão sua que não é a sua.',
+        'O material que você vai receber agora vai te mostrar exatamente quando e como esse código foi instalado. E por que não é fraqueza. É neurobiologia.'
+      ]
+    },
+    sabotador: {
+      label: 'A Sabotadora',
+      img: 'badge-sabotador.webp',
+      corpo: [
+        'Você deseja. Planeja. Começa. E na hora H, algo te puxa de volta.',
+        'Não é falta de força de vontade. É um arquivo gravado no seu subconsciente que diz que você não merece chegar lá. Que sucesso é perigoso. Que se você se destacar demais, vai perder algo, ou alguém.',
+        'Então você chega perto. E derruba.',
+        'O material que você vai receber agora vai te mostrar a raiz exata desse código. Onde foi instalado, quem instalou, e por que seu cérebro ainda obedece ele.'
+      ]
+    },
+    ausente: {
+      label: 'A Ausente',
+      img: 'badge-ausente.webp',
+      corpo: [
+        'Você está presente em tudo. No trabalho, nas relações, nas obrigações.',
+        'Mas ausente de si mesma.',
+        'Você vai, faz, cumpre. Funciona. Mas em algum ponto do caminho perdeu o fio de volta pra você. E agora quando alguém pergunta o que você quer, o que você sente, quem você é, a resposta demora mais do que deveria.',
+        'O material que você vai receber agora vai te mostrar como essa desconexão aconteceu. E que ela não é quem você é. É o que te fizeram ser.'
+      ]
+    },
+    controlador: {
+      label: 'A Controladora',
+      img: 'badge-controlador.webp',
+      corpo: [
+        'Você aprendeu que o mundo não é seguro quando as coisas saem do seu controle.',
+        'Então você planeja. Prevê. Organiza. Prepara pra todos os cenários possíveis. Às vezes parece que você está sempre pronta, mas nunca age de verdade.',
+        'Por baixo do controle existe um medo muito antigo: o de que se você soltar, tudo desmorona. Que a segurança depende de você segurando tudo.',
+        'O material que você vai receber agora vai te mostrar onde esse código nasceu. E o que acontece quando você descobre que pode soltar.'
+      ]
+    }
+  };
+
+  // ---------- UTM (best-effort, captado uma vez na abertura) ----------
+  (function captureUTM() {
+    var q = new URLSearchParams(window.location.search);
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].forEach(function (k) {
+      var v = q.get(k);
+      if (v) localStorage.setItem('quiz_' + k, v);
+    });
+  })();
+
+  // ---------- Monta o DOM dos steps ----------
+  var stepsEl = document.getElementById('steps');
+
+  function el(html) {
+    var d = document.createElement('div');
+    d.innerHTML = html.trim();
+    return d.firstElementChild;
+  }
+
+  // Step 0 — hook
+  stepsEl.appendChild(el(
+    '<div data-step data-kind="content">' +
+      '<div class="wrap center">' +
+        '<h1>Tem uma parte de você que trava, sempre no <em>mesmo ponto</em>.</h1>' +
+        '<p class="lead lead-strong">Não é falta de força de vontade: é um <span class="mark">código específico</span>, instalado em você há muito tempo.</p>' +
+        '<div class="media-frame"><img src="../assets/img/hook.webp" alt="" /></div>' +
+        '<p class="lead">Descubra o seu em 8 perguntas e <span class="mark">comece a reescrever o que não te serve mais</span>.</p>' +
+        '<button type="button" class="btn btn-narrow btn-pulse" id="btnStart">Descobrir meu código</button>' +
+      '</div>' +
+    '</div>'
+  ));
+
+  // Step — captura antecipada do nome (logo na abertura, sem e-mail ainda — usado
+  // em todo o resto do funil: terminal de loading, revelação, resultado, material)
+  stepsEl.appendChild(el(
+    '<div data-step data-kind="content">' +
+      '<div class="wrap">' +
+        '<h2 class="cap-title">Antes de começarmos: como posso te chamar?</h2>' +
+        '<div class="field">' +
+          '<input id="capNameEarly" class="input" type="text" placeholder="Seu primeiro nome" autocomplete="given-name" />' +
+        '</div>' +
+        '<button type="button" class="btn" id="btnNameContinue">Continuar</button>' +
+      '</div>' +
+    '</div>'
+  ));
+
+  // Pausas honestas entre blocos de perguntas — validam o esforço de responder,
+  // não o conteúdo específico da resposta (pontuação só fecha na 8ª pergunta,
+  // reagir a uma resposta isolada seria personalização fabricada). Ver
+  // references/visual-identity-serena.md. Imagem sugerida por bridge (dualidade
+  // código/natureza — trocar o ícone de emoji pela arte real quando existir):
+  // 1 → ondas concêntricas na água, luz suave · 4 → raízes se aprofundando /
+  // caminho escurecendo · 6 → um ponto de luz se abrindo num campo escuro ·
+  // pivot → cosmos/galáxia se reorganizando.
+  var BRIDGES = {
+    1: { img: 'bridge-ondas.webp', lead: 'Você', rest: ' não está sozinha nisso. Esse tipo de resposta é mais comum do que parece.' },
+    4: { img: 'bridge-raizes.webp', lead: 'As', rest: ' próximas perguntas tocam num lugar mais fundo. Não existe resposta certa, só a que for mais verdadeira pra você agora.' },
+    6: { img: 'bridge-flor.webp', lead: 'Nomear', rest: ' o que você sente já é o primeiro movimento de mudança. Falta só mais uma pergunta.' },
+    pivot: { img: 'bridge-universo.webp', lead: 'Isso', rest: ' que você acabou de sentir tem nome. E o que tem nome, pode ser entendido. E o que pode ser entendido, pode ser reescrito.' }
+  };
+
+  function bridgeCard(key, ctaLabel) {
+    return '<div data-step data-kind="content" data-bridge="' + key + '">' +
+      '<div class="wrap center">' +
+        '<div class="bridge-card">' +
+          '<div class="media-frame bridge-img"><img src="../assets/img/' + BRIDGES[key].img + '" alt="" /></div>' +
+          '<p class="bridge-quote" data-bridge-quote>—</p>' +
+        '</div>' +
+        '<button type="button" class="btn btn-bridge btn-narrow">' + ctaLabel + '</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  // Steps 1-8 — perguntas
+  QUESTIONS.forEach(function (q, qi) {
+    var opts = q.opcoes.map(function (o, oi) {
+      return '<button type="button" class="option" data-archetype="' + ARCHETYPES[oi] + '">' +
+        '<span class="emoji">' + o.emoji + '</span><span>' + o.texto + '</span>' +
+        '</button>';
+    }).join('');
+    stepsEl.appendChild(el(
+      '<div data-step data-kind="quiz" data-qindex="' + qi + '">' +
+        '<div class="wrap">' +
+          '<h2 class="q-title">' + q.texto + '</h2>' +
+          '<div>' + opts + '</div>' +
+        '</div>' +
+      '</div>'
+    ));
+    if (BRIDGES[qi]) {
+      stepsEl.appendChild(el(bridgeCard(qi, 'Continuar')));
+    }
+  });
+
+  // Step — virada de esperança (pós-diagnóstico, pré-cálculo): fecha a descida
+  // emocional das 8 perguntas com agência, não só mais peso
+  stepsEl.appendChild(el(bridgeCard('pivot', 'Ver meu código')));
+
+  // Step — loading (anel de progresso circular com % contando 0→100 no centro +
+  // frases rotativas; sem exibir o "código"/resultado nesta tela — só no reveal seguinte)
+  stepsEl.appendChild(el(
+    '<div data-step data-kind="loading">' +
+      '<div class="wrap center">' +
+        '<p class="eyebrow">Processando</p>' +
+        '<div class="loading-ring-wrap">' +
+          '<svg class="loading-ring" viewBox="0 0 120 120">' +
+            '<defs>' +
+              '<linearGradient id="loadingRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
+                '<stop offset="0%" stop-color="var(--gold)" />' +
+                '<stop offset="100%" stop-color="var(--lavender)" />' +
+              '</linearGradient>' +
+            '</defs>' +
+            '<circle class="loading-ring-track" cx="60" cy="60" r="54" />' +
+            '<circle class="loading-ring-fill" id="loadingRingFill" cx="60" cy="60" r="54" />' +
+          '</svg>' +
+          '<span class="loading-percent" id="loadingPercent">0%</span>' +
+        '</div>' +
+        '<p class="loading-phrase" id="loadingPhrase">Lendo suas respostas...</p>' +
+      '</div>' +
+    '</div>'
+  ));
+
+  // Step — revelação parcial
+  stepsEl.appendChild(el(
+    '<div data-step data-kind="content">' +
+      '<div class="wrap center">' +
+        '<p class="eyebrow" id="revealEyebrow">Seu código instalado é:</p>' +
+        '<div class="media-frame result-orb"><img id="revealOrbImg" src="" alt="" /></div>' +
+        '<h1 id="revealLabel">—</h1>' +
+        '<p class="lead">Isso explica muita coisa: <span class="mark">o que foi instalado pode ser reescrito</span>.</p>' +
+        '<button type="button" class="btn" id="btnToCapture">Ver o que isso significa</button>' +
+      '</div>' +
+    '</div>'
+  ));
+
+  // Step — captura (e-mail; nome já foi coletado na abertura)
+  stepsEl.appendChild(el(
+    '<div data-step data-kind="capture">' +
+      '<div class="wrap">' +
+        '<div class="media-frame img-envelope"><img src="../assets/img/envelope.webp" alt="" /></div>' +
+        '<h2 id="captureHeading" class="cap-title">Pra onde te mando os detalhes do seu resultado?</h2>' +
+        '<form id="captureForm">' +
+          '<div class="field">' +
+            '<label class="label" for="capEmail">Seu melhor e-mail</label>' +
+            '<input id="capEmail" class="input" type="email" data-funnel-field="email" placeholder="voce@email.com" required autocomplete="email" inputmode="email" />' +
+            '<div data-email-msg></div>' +
+            '<div data-email-suggestion></div>' +
+          '</div>' +
+          '<p class="disclaimer">Ao continuar, você concorda em receber e-mails sobre este conteúdo. Pode cancelar quando quiser.</p>' +
+          '<button type="submit" class="btn" id="btnCapture">Ver meu resultado completo</button>' +
+        '</form>' +
+      '</div>' +
+    '</div>'
+  ));
+
+  // Step — resultado completo
+  stepsEl.appendChild(el(
+    '<div data-step data-kind="content">' +
+      '<div class="wrap">' +
+        '<div class="media-frame img-badge"><img id="resultBadgeImg" src="" alt="" /></div>' +
+        '<div class="result-card">' +
+          '<span class="result-tag" id="resultTag">—</span>' +
+          '<h1 class="result-archetype" id="resultArchetype">—</h1>' +
+          '<div class="result-body" id="resultBody"></div>' +
+        '</div>' +
+        '<a class="btn" id="btnMaterial" href="#">Quero ver meu material completo</a>' +
+      '</div>' +
+    '</div>'
+  ));
+
+  // ---------- Runtime do funil (ver .claude/skills/quiz-funnel-designer/SKILL.md) ----------
+  var steps = Array.prototype.slice.call(document.querySelectorAll('[data-step]'));
+  var idx = 0;
+
+  function updateProgress() {
+    // Barra de progresso reflete só as 8 perguntas, não o funil inteiro (hook/loading/captura/resultado não contam)
+    var current = steps[idx];
+    var fill = document.getElementById('progressFill');
+    var shell = document.querySelector('.progress-shell');
+    shell.classList.toggle('is-hidden', idx === 0 || idx === steps.length - 1 || !!current.dataset.bridge || current.dataset.kind === 'loading');
+    if (current.dataset.kind === 'quiz') {
+      var qi = Number(current.dataset.qindex);
+      fill.style.width = (((qi + 1) / QUESTIONS.length) * 100) + '%';
+    }
+  }
+
+  function render() {
+    steps.forEach(function (s, i) {
+      s.classList.toggle('is-active', i === idx);
+      s.classList.toggle('is-enter', i === idx);
+    });
+    updateProgress();
+    window.scrollTo(0, 0);
+  }
+
+  // Transição entre steps: fade-out do step atual, só então troca e faz
+  // fade-in do próximo — sem isso a troca de `display:none` corta seco,
+  // não dá pra animar uma propriedade que já sumiu.
+  var TRANSITION_MS = 160;
+  function goToStep(newIdx) {
+    var current = steps[idx];
+    current.classList.remove('is-enter');
+    current.classList.add('is-leaving');
+    setTimeout(function () {
+      current.classList.remove('is-active', 'is-leaving');
+      idx = newIdx;
+      var next = steps[idx];
+      next.classList.add('is-active', 'is-enter');
+      updateProgress();
+      window.scrollTo(0, 0);
+      afterRender();
+    }, TRANSITION_MS);
+  }
+
+  window.__funnel = {
+    get currentStep() { return idx + 1; },
+    get totalSteps() { return steps.length; },
+    continue: function () { if (idx < steps.length - 1) goToStep(idx + 1); },
+    back: function () { if (idx > 0) goToStep(idx - 1); }
+  };
+
+  render();
+
+  // ---------- Lógica de cada step ----------
+
+  document.getElementById('btnStart').addEventListener('click', function () {
+    window.__funnel.continue();
+  });
+
+  // Nome antecipado: campo único, sem e-mail — usado no resto do funil inteiro
+  (function setupNameEarly() {
+    var input = document.getElementById('capNameEarly');
+    var btn = document.getElementById('btnNameContinue');
+    input.addEventListener('input', function () { input.style.borderColor = ''; });
+    btn.addEventListener('click', function () {
+      var val = input.value.trim();
+      if (!val) { input.style.borderColor = 'var(--error)'; input.focus(); return; }
+      localStorage.setItem('quiz_name', val);
+      window.__funnel.continue();
+    });
+  })();
+
+  // Pausas honestas e virada de esperança: mesmo botão genérico, delegação de clique
+  stepsEl.addEventListener('click', function (e) {
+    var bridgeBtn = e.target.closest('.btn-bridge');
+    if (bridgeBtn) window.__funnel.continue();
+  });
+
+  // Perguntas: clique na opção grava resposta e avança
+  stepsEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('.option');
+    if (!btn) return;
+    var stepEl = btn.closest('[data-step]');
+    var qi = Number(stepEl.dataset.qindex);
+    localStorage.setItem('quiz_answer_' + (qi + 1), btn.dataset.archetype);
+    window.__funnel.continue();
+  });
+
+  // Loading: terminal digitando + mensagens + cálculo do resultado + avanço automático
+  // Nome usado como prefixo natural ("Bianca, você não está..."), minúsculo
+  // no encaixe e maiúsculo quando não há nome ainda (fallback) — mesmo padrão
+  // já usado em captureHeading/revealEyebrow/resultTag.
+  function withName(lead, rest) {
+    var name = localStorage.getItem('quiz_name') || '';
+    return (name ? name + ', ' + lead.toLowerCase() : lead) + rest;
+  }
+
+  function afterRender() {
+    var current = steps[idx];
+    if (current.dataset.kind === 'loading') runLoading();
+    if (current.dataset.kind === 'capture') {
+      var name = localStorage.getItem('quiz_name') || '';
+      document.getElementById('captureHeading').textContent =
+        (name ? name + ', p' : 'P') + 'ra onde te mando os detalhes do seu resultado?';
+    }
+    if (current.dataset.bridge) {
+      var b = BRIDGES[current.dataset.bridge];
+      current.querySelector('[data-bridge-quote]').textContent = withName(b.lead, b.rest);
+    }
+    // Nome ecoado nas 2 perguntas mais pesadas (P7 e P8) — só nelas, pra não virar mala-direta
+    if (current.dataset.kind === 'quiz') {
+      var qi = Number(current.dataset.qindex);
+      if (qi === 6 || qi === 7) {
+        var name2 = localStorage.getItem('quiz_name') || '';
+        var original = QUESTIONS[qi].texto;
+        current.querySelector('h2').textContent = name2
+          ? name2 + ', ' + original.charAt(0).toLowerCase() + original.slice(1)
+          : original;
+      }
+    }
+  }
+
+  function computeResult() {
+    var score = { aprovador: 0, sabotador: 0, ausente: 0, controlador: 0 };
+    var firstSeenAt = {};
+    for (var i = 1; i <= QUESTIONS.length; i++) {
+      var a = localStorage.getItem('quiz_answer_' + i);
+      if (!a || !(a in score)) continue;
+      score[a]++;
+      if (!(a in firstSeenAt)) firstSeenAt[a] = i;
+    }
+    var winner = null, best = -1;
+    ARCHETYPES.forEach(function (arch) {
+      if (score[arch] > best) { best = score[arch]; winner = arch; }
+      else if (score[arch] === best) {
+        // empate: vence quem apareceu primeiro entre as 8 respostas
+        if (firstSeenAt[arch] < firstSeenAt[winner]) winner = arch;
+      }
+    });
+    localStorage.setItem('quiz_result', winner);
+    return winner;
+  }
+
+  function runLoading() {
+    var RING_CIRC = 339.292; // 2 * PI * r(54)
+    var DURATION = 3100; // mesma duração do ciclo inteiro (frases + cálculo)
+    var ringFill = document.getElementById('loadingRingFill');
+    var percentEl = document.getElementById('loadingPercent');
+    ringFill.style.strokeDashoffset = RING_CIRC;
+    percentEl.textContent = '0%';
+
+    var startTs = null;
+    function tick(ts) {
+      if (startTs === null) startTs = ts;
+      var pct = Math.min(100, Math.round(((ts - startTs) / DURATION) * 100));
+      percentEl.textContent = pct + '%';
+      ringFill.style.strokeDashoffset = RING_CIRC * (1 - pct / 100);
+      if (pct < 100) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    var name = localStorage.getItem('quiz_name') || '';
+    var phraseEl = document.getElementById('loadingPhrase');
+    var phrases = [
+      name ? name + ', lendo suas respostas...' : 'Lendo suas respostas...',
+      'Reconhecendo o padrão...',
+      'Encontrando onde ele começou...',
+      'Preparando o seu código...'
+    ];
+
+    function swapPhrase(text) {
+      phraseEl.classList.add('is-swapping');
+      setTimeout(function () {
+        phraseEl.textContent = text;
+        phraseEl.classList.remove('is-swapping');
+      }, 220);
+    }
+
+    phraseEl.textContent = phrases[0];
+    var pi = 1;
+    var phraseTimer = setInterval(function () {
+      if (pi >= phrases.length) { clearInterval(phraseTimer); return; }
+      swapPhrase(phrases[pi]);
+      pi++;
+    }, 750);
+
+    setTimeout(function () {
+      clearInterval(phraseTimer);
+      var result = computeResult();
+      swapPhrase(name ? name + ', encontramos.' : 'Encontramos.');
+      percentEl.textContent = '100%';
+      ringFill.style.strokeDashoffset = 0;
+      populateReveal(result);
+      populateResult(result);
+      setTimeout(function () { window.__funnel.continue(); }, 900);
+    }, DURATION);
+  }
+
+  function populateReveal(result) {
+    var name = localStorage.getItem('quiz_name') || '';
+    document.getElementById('revealEyebrow').textContent = (name ? name + ', seu' : 'Seu') + ' código instalado é:';
+    document.getElementById('revealOrbImg').src = '../assets/img/' + RESULTS[result].img;
+    document.getElementById('revealLabel').textContent = RESULTS[result].label;
+  }
+
+  function populateResult(result) {
+    var name = localStorage.getItem('quiz_name') || '';
+    document.getElementById('resultBadgeImg').src = '../assets/img/' + RESULTS[result].img;
+    document.getElementById('resultTag').textContent = (name ? name + ', seu' : 'Seu') + ' código instalado é:';
+    document.getElementById('resultArchetype').textContent = RESULTS[result].label;
+    var body = document.getElementById('resultBody');
+    body.innerHTML = RESULTS[result].corpo.map(function (p) { return '<p>' + p + '</p>'; }).join('');
+    document.getElementById('btnMaterial').href = '/material?r=' + result;
+  }
+
+  document.getElementById('btnToCapture').addEventListener('click', function () {
+    window.__funnel.continue();
+  });
+
+  // Captura: valida e-mail (formato + descartável + sugestão de typo), grava lead, envia pro backend
+  (function setupCapture() {
+    var EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+    var DISPOSABLE = {
+      'mailinator.com':1,'guerrillamail.com':1,'guerrillamail.info':1,'guerrillamail.net':1,
+      'sharklasers.com':1,'grr.la':1,'10minutemail.com':1,'10minutemail.net':1,'tempmail.com':1,
+      'temp-mail.org':1,'tempmail.net':1,'throwawaymail.com':1,'yopmail.com':1,'yopmail.fr':1,
+      'trashmail.com':1,'trashmail.net':1,'getnada.com':1,'maildrop.cc':1,'dispostable.com':1,
+      'fakeinbox.com':1,'mailnesia.com':1,'mintemail.com':1,'mailcatch.com':1,'mohmal.com':1,
+      'emailondeck.com':1,'spam4.me':1,'tempinbox.com':1,'moakt.com':1,'mailto.plus':1,
+      '1secmail.com':1,'discard.email':1,'harakirimail.com':1,'tempr.email':1,'getairmail.com':1,
+      'nada.email':1,'fakemail.net':1,'fakemailgenerator.com':1,'maileater.com':1,'inboxbear.com':1,
+      'tmail.com':1,'mytemp.email':1,'burnermail.io':1,'33mail.com':1,'einrot.com':1
+    };
+    var POPULAR = [
+      'gmail.com','hotmail.com','outlook.com','yahoo.com','yahoo.com.br','icloud.com',
+      'live.com','bol.com.br','uol.com.br','terra.com.br','globo.com','ig.com.br',
+      'msn.com','proton.me','protonmail.com'
+    ];
+
+    function levenshtein(a, b) {
+      var m = a.length, n = b.length;
+      if (!m) return n;
+      if (!n) return m;
+      var prev = [], cur = [], i, j;
+      for (j = 0; j <= n; j++) prev[j] = j;
+      for (i = 1; i <= m; i++) {
+        cur[0] = i;
+        for (j = 1; j <= n; j++) {
+          var cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+          cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+        }
+        for (j = 0; j <= n; j++) prev[j] = cur[j];
+      }
+      return cur[n];
+    }
+    function suggest(email) {
+      var at = email.lastIndexOf('@');
+      if (at < 1) return null;
+      var local = email.slice(0, at);
+      var domain = email.slice(at + 1).toLowerCase();
+      if (!domain || POPULAR.indexOf(domain) !== -1) return null;
+      var best = null, bestDist = 99;
+      for (var k = 0; k < POPULAR.length; k++) {
+        var d = levenshtein(domain, POPULAR[k]);
+        if (d < bestDist) { bestDist = d; best = POPULAR[k]; }
+      }
+      if (best && bestDist > 0 && bestDist <= 2) return local + '@' + best;
+      return null;
+    }
+    function classify(email) {
+      if (!EMAIL_RE.test(email)) return { type: 'format' };
+      var domain = email.slice(email.lastIndexOf('@') + 1).toLowerCase();
+      if (DISPOSABLE[domain]) return { type: 'disposable' };
+      var fix = suggest(email);
+      if (fix) return { type: 'typo', suggestion: fix };
+      return { type: 'ok' };
+    }
+
+    var form = document.getElementById('captureForm');
+    var emailInput = document.getElementById('capEmail');
+    var msg = document.querySelector('[data-email-msg]');
+    var sug = document.querySelector('[data-email-suggestion]');
+    var validated = false;
+    var lastTypoVal = null;
+    var sending = false;
+
+    function showError(text) {
+      emailInput.classList.add('invalid');
+      msg.textContent = text; msg.classList.add('show');
+      sug.classList.remove('show'); sug.innerHTML = '';
+    }
+    function clearMsgs() {
+      emailInput.classList.remove('invalid');
+      msg.classList.remove('show'); msg.textContent = '';
+      sug.classList.remove('show'); sug.innerHTML = '';
+    }
+    function showSuggestion(fixed) {
+      emailInput.classList.remove('invalid');
+      msg.classList.remove('show');
+      sug.innerHTML = 'Você quis dizer <button type="button">' + fixed + '</button>?';
+      sug.classList.add('show');
+      sug.querySelector('button').addEventListener('click', function () {
+        emailInput.value = fixed; lastTypoVal = null; clearMsgs(); emailInput.focus();
+      });
+    }
+
+    emailInput.addEventListener('input', function () {
+      validated = false;
+      clearMsgs();
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (sending) return;
+
+      var name = localStorage.getItem('quiz_name') || '';
+      var value = (emailInput.value || '').trim().toLowerCase();
+      emailInput.value = value;
+
+      if (!validated) {
+        var r = classify(value);
+        if (r.type === 'format') { showError('Digite um e-mail válido.'); return; }
+        if (r.type === 'disposable') { showError('Use seu e-mail principal: caixas temporárias não recebem o material.'); return; }
+        if (r.type === 'typo' && value !== lastTypoVal) { showSuggestion(r.suggestion); lastTypoVal = value; return; }
+        validated = true;
+      }
+
+      clearMsgs();
+      localStorage.setItem('quiz_email', value);
+
+      sending = true;
+      var btn = document.getElementById('btnCapture');
+      btn.textContent = 'Enviando...';
+
+      var result = localStorage.getItem('quiz_result');
+      fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: name,
+          email: value,
+          resultado: result,
+          source: 'quiz-diagnostico-metodo-calice',
+          utm_source: localStorage.getItem('quiz_utm_source') || '',
+          utm_medium: localStorage.getItem('quiz_utm_medium') || '',
+          utm_campaign: localStorage.getItem('quiz_utm_campaign') || '',
+          utm_content: localStorage.getItem('quiz_utm_content') || 'geovana'
+        })
+      }).catch(function (err) {
+        // fire-and-forget: não bloqueia a experiência se a rede falhar — o lead
+        // ainda vê o resultado; o e-mail de reforço fica pendente até reenviar depois.
+        console.error('Erro ao enviar o lead:', err);
+      });
+
+      window.__funnel.continue();
+    });
+  })();
+})();
+</script>
+</body>
+</html>
