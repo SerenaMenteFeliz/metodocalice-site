@@ -1,8 +1,10 @@
-# quiz-metodo-calice
+# metodo-calice-site
 
-Quiz de diagnóstico ("qual código está rodando em você") — canal de captura pro
-Método Cálice, link na bio da Ge. Mesmo padrão de infra do `larinterior-site`:
-HTML estático + função serverless na Vercel, sem framework.
+Site de captura do Método Cálice (renomeado de `quiz-metodo-calice` em 20/07 —
+1 repo por produto, artefatos de funil como paths). Quiz de diagnóstico ("qual
+código está rodando em você") — canal de captura pro Método Cálice, link na
+bio da Ge. Mesmo padrão de infra do `larinterior-site`: HTML estático + função
+serverless na Vercel, sem framework.
 
 Estrutura completa e decisões de produto: ver `Quiz Diagnóstico - Estrutura e Copy`
 no Vault Zuppas (`20 - Projetos/Método Cálice/`). Lógica/tipos de step: ver
@@ -21,23 +23,18 @@ supabase/migrations/  → 0001_add_quiz_result.sql (rodar antes do primeiro depl
 
 Slugs de resultado: `aprovador`, `sabotador`, `ausente`, `controlador`.
 
-## Antes do primeiro deploy
+## Estado (20/07/2026)
 
-1. **Rodar a migration** `supabase/migrations/0001_add_quiz_result.sql` no projeto
-   Supabase "Serena Mente Feliz" (SQL Editor) — adiciona `lead_events.quiz_result`.
-2. **Criar o atributo customizado `RESULTADO_QUIZ`** no Brevo (Contatos → Atributos)
-   — tipo texto. Usado pela futura automação de e-mail pra montar o link
-   `.../material?r={{ contact.RESULTADO_QUIZ }}`.
-3. **Env vars na Vercel** (mesmas do `larinterior-site`, mesmo projeto Supabase):
-   `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BREVO_API_KEY`, `BREVO_LIST_ID`
-   — ver [[credenciais]] no vault. Decidir se usa a mesma lista do Lar Interior ou
-   uma lista nova no Brevo pra este funil.
-
-## Deploy
-
-Segue o SOP - Deploy na Vercel (GitHub) do vault: `git init` → repo no GitHub →
-import na Vercel → env vars → domínio (`quiz.serenamentefeliz.com`, a criar) →
-Deployment Protection desativada. Ainda não inicializado — feito sob demanda do Yan.
+- Migration `0001_add_quiz_result.sql` **aplicada**.
+- Atributo `RESULTADO_QUIZ` **criado no Brevo**, lista própria (id 4).
+- Env vars **setadas na Vercel** (Production + Preview).
+- Deployment Protection **desativada**.
+- Domínio: **`metodocalice.serenamentefeliz.com`** (renomeado de `quiz.` em 20/07 —
+  ver `Arquitetura - Dados e Tracking.md` no vault pro padrão: 1 subdomínio por
+  produto, artefatos de funil como paths dentro dele). Aguardando só o registro
+  DNS `A metodocalice 76.76.21.21` no Registro.br (ação do Yan).
+- Repo local com git, **sem remote no GitHub** ainda (deploy é via `vercel --prod`
+  direto do CLI, não CI).
 
 ## Pendências conhecidas
 
