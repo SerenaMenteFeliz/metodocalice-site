@@ -1,12 +1,12 @@
 // Função serverless (Vercel) — recebe o lead do quiz e:
 //   1. GRAVA NO SUPABASE  (sistema de registro — CRÍTICO; se falhar, aborta e avisa)
 //      - upsert em "contacts"   (1 linha por e-mail)
-//      - insert em "lead_events" (1 linha por opt-in; source + UTMs + resultado do quiz)
+//      - insert em "lead_events" (1 linha por opt-in; event_type/offer/product + UTMs + resultado do quiz)
 //   2. adiciona ao Brevo  (e-mail; best-effort — se falhar, o lead já está salvo)
 //      - grava o atributo customizado RESULTADO_QUIZ, usado pela automação de e-mail
 //        pra montar o link de entrega personalizado (.../material?r={{ contact.RESULTADO_QUIZ }})
 //
-// Mesmo padrão do larinterior-site/api/subscribe.js — só adiciona o campo "resultado".
+// Mesmo padrão do larinterior-site/api/subscribe.js — só adiciona o campo "result".
 //
 // Env vars (Vercel → Project → Settings → Environment Variables):
 //   SUPABASE_URL                — https://<projeto>.supabase.co
@@ -14,7 +14,7 @@
 //   BREVO_API_KEY               — (opcional) Brevo → SMTP & API → API Keys (v3)
 //   BREVO_LIST_ID               — (opcional) Brevo → Contatos → Listas → id numérico
 
-const RESULTADOS_VALIDOS = ['aprovador', 'sabotador', 'ausente', 'controlador'];
+const VALID_RESULTS = ['aprovador', 'sabotador', 'ausente', 'controlador'];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   }
 
   const body = req.body || {};
-  const { nome, email } = body;
+  const { name, email } = body;
 
   const emailOk =
     typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -33,18 +33,20 @@ export default async function handler(req, res) {
 
   const contact = {
     email: email.trim().toLowerCase(),
-    nome: (nome || '').trim() || null,
+    name: (name || '').trim() || null,
   };
 
-  const resultado = RESULTADOS_VALIDOS.includes(body.resultado) ? body.resultado : null;
+  const result = VALID_RESULTS.includes(body.result) ? body.result : null;
 
   const event = {
-    source: body.source || 'quiz-diagnostico-metodo-calice',
+    event_type: body.event_type || 'isca',
+    offer: body.offer || 'quiz-diagnostico',
+    product: body.product || 'metodo-calice',
     utm_source: body.utm_source || null,
     utm_medium: body.utm_medium || null,
     utm_campaign: body.utm_campaign || null,
     utm_content: body.utm_content || 'geovana',
-    quiz_result: resultado,
+    quiz_result: result,
   };
 
   // ---------- 1. SUPABASE (crítico) ----------
@@ -58,7 +60,7 @@ export default async function handler(req, res) {
   // ---------- 2. BREVO (best-effort) ----------
   let brevo = 'skipped';
   try {
-    brevo = await addToBrevo(contact, resultado);
+    brevo = await addToBrevo(contact, result);
   } catch (err) {
     console.error('Falha no Brevo (lead já salvo no Supabase):', err.message);
     brevo = 'failed';
@@ -79,7 +81,7 @@ async function saveToSupabase(contact, event) {
     'Content-Type': 'application/json',
   };
 
-  // 1a. Upsert contact — on conflict(email): atualiza nome e updated_at
+  // 1a. Upsert contact — on conflict(email): atualiza name e updated_at
   const upsertResp = await fetch(`${url}/rest/v1/contacts`, {
     method: 'POST',
     headers: {
@@ -117,7 +119,7 @@ async function saveToSupabase(contact, event) {
 }
 
 // --- Brevo (best-effort) ---
-async function addToBrevo(contact, resultado) {
+async function addToBrevo(contact, result) {
   const apiKey = process.env.BREVO_API_KEY;
   const listId = Number(process.env.BREVO_LIST_ID);
   if (!apiKey || !listId) {
@@ -125,8 +127,8 @@ async function addToBrevo(contact, resultado) {
     return 'skipped';
   }
 
-  const attributes = { FIRSTNAME: contact.nome };
-  if (resultado) attributes.RESULTADO_QUIZ = resultado;
+  const attributes = { FIRSTNAME: contact.name };
+  if (result) attributes.RESULTADO_QUIZ = result;
 
   const resp = await fetch('https://api.brevo.com/v3/contacts', {
     method: 'POST',
