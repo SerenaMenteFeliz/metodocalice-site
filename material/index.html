@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   /* Tokens reais do tema "Santuário + Véu" — ver
      .claude/skills/quiz-funnel-designer/references/visual-identity-serena.md */
@@ -30,7 +30,6 @@
     --font-ui: 'Manrope', -apple-system, sans-serif;
   }
   * { box-sizing: border-box; }
-  html, body { height: 100%; }
   body {
     margin: 0;
     font-family: var(--font-ui);
@@ -41,7 +40,7 @@
   }
   #app { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
 
-  /* ---------- barra de progresso + footer legal (mesmo padrão fixo do quiz) ---------- */
+  /* ---------- contador de páginas (fixo no topo, só nas páginas de leitura) ---------- */
   .progress-shell {
     position: fixed; top: 0; left: 0; right: 0; z-index: 10;
     padding: 16px 20px 14px;
@@ -56,16 +55,16 @@
     border-radius: 999px; overflow: hidden;
   }
   .progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--gold-soft)); transition: width .3s ease; }
-  .progress-count { font-family: var(--font-label); font-size: 12px; letter-spacing: .03em; color: var(--accent); margin: 8px 2px 0; }
+  .progress-count { font-family: var(--font-label); font-size: 12px; letter-spacing: .03em; color: var(--accent); margin: 8px 2px 0; display: flex; justify-content: space-between; }
 
+  /* footer legal em fluxo normal (não fixo) — nas telas de leitura o scroll é da
+     página inteira, footer fica no fim do conteúdo como numa página comum */
   .legal-footer {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
-    text-align: center; padding: 10px 20px;
+    text-align: center; padding: 18px 20px 24px; margin-top: auto;
     font-family: var(--font-label); font-size: 11px; color: var(--ink); opacity: .5; letter-spacing: .01em;
-    background: linear-gradient(0deg, var(--veil-2) 55%, rgba(247,239,227,0) 100%);
   }
 
-  #steps { flex: 1; display: flex; flex-direction: column; padding-top: 56px; padding-bottom: 50px; overflow-y: auto; }
+  #steps { flex: 1; display: flex; flex-direction: column; padding-top: 56px; }
   [data-step] { display: none; flex: 1; }
   [data-step].is-active { display: flex; }
   [data-step].is-enter { animation: step-in .45s cubic-bezier(.16,1,.3,1); }
@@ -86,8 +85,11 @@
     justify-content: center;
     flex: 1;
   }
+  /* páginas de leitura: conteúdo começa do topo, não centralizado verticalmente */
+  .wrap-top { justify-content: flex-start; }
+  .center { text-align: center; }
 
-  /* ---------- mídia (mesma moldura dourada do quiz, mídia finalizada) ---------- */
+  /* ---------- mídia (moldura dourada = mídia finalizada) ---------- */
   .media-frame {
     max-width: 176px;
     margin: 0 auto 22px;
@@ -98,17 +100,28 @@
   .media-frame img { display: block; width: 100%; border-radius: 20px; }
   .img-badge, .img-badge-small { aspect-ratio: 3/4; }
   .img-badge img, .img-badge-small img { height: 100%; object-fit: cover; }
-  .img-badge { max-width: 208px; margin: 0 auto 20px; }
+  .img-badge { max-width: 216px; margin: 0 auto 26px; }
   .img-badge-small { max-width: 112px; margin: 26px auto 0; }
 
   .eyebrow {
-    font-family: var(--font-label); font-size: 12px; font-weight: 700; letter-spacing: .04em;
-    text-transform: uppercase; color: var(--gold-soft); text-align: center; margin: 0 0 10px;
+    font-family: var(--font-label); font-size: 12px; font-weight: 600; letter-spacing: .07em;
+    text-transform: uppercase; color: var(--accent); text-align: center; margin: 0 0 14px;
   }
-  /* abertura personalizada: cartão de contraste, mesmo espírito do result-card do quiz */
+
+  /* ---------- capa ---------- */
+  .capa-title {
+    font-family: var(--font-display); font-weight: 600; font-size: 36px; line-height: 1.14;
+    color: var(--ink); text-align: center; margin: 0 0 8px;
+  }
+  .capa-sub {
+    font-family: var(--font-display); font-style: italic; color: var(--accent);
+    text-align: center; font-size: 17px; margin: 0 0 26px; opacity: .9;
+  }
+
+  /* ---------- resultado personalizado (cartão de contraste) ---------- */
   .opening-card {
     margin-bottom: 30px;
-    padding: 24px 24px 6px;
+    padding: 24px 24px 8px;
     border-radius: 20px;
     background: linear-gradient(160deg, rgba(43,30,66,.94), rgba(74,46,99,.88));
     color: var(--surface-dark-fg);
@@ -129,14 +142,51 @@
   }
   .fallback-note a { color: var(--accent); font-weight: 600; }
 
-  h1.title { font-family: var(--font-display); font-weight: 500; font-size: 32px; margin: 0 0 8px; text-align: center; }
-  .subtitle { font-family: var(--font-display); font-style: italic; color: var(--accent); text-align: center; font-size: 16px; margin: 0; opacity: .9; }
+  /* ---------- índice ---------- */
+  .toc-heading { font-family: var(--font-display); font-weight: 600; font-size: 30px; margin: 0 0 22px; text-align: center; }
+  .toc-item {
+    display: flex; align-items: center; gap: 14px;
+    width: 100%; text-align: left;
+    padding: 15px 16px; margin-bottom: 11px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px -16px var(--shadow-tint);
+    font-family: var(--font-ui); color: var(--ink);
+    cursor: pointer;
+    transition: border-color .15s ease, transform .1s ease;
+  }
+  .toc-item:hover { border-color: var(--gold); }
+  .toc-item:active { transform: scale(.98); }
+  .toc-num { font-family: var(--font-display); font-weight: 600; font-size: 22px; color: var(--gold); flex: 0 0 30px; text-align: center; }
+  .toc-body { flex: 1; min-width: 0; }
+  .toc-meta { display: block; font-family: var(--font-label); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); opacity: .85; }
+  .toc-title { display: block; font-size: 15px; font-weight: 600; line-height: 1.35; }
+  .toc-state { font-family: var(--font-label); font-size: 12px; color: var(--accent); flex: 0 0 auto; }
+  .toc-item.is-done .toc-state { color: var(--gold); font-size: 16px; }
+  .toc-item.is-current { border-color: var(--gold); }
+
+  /* ---------- páginas de leitura ---------- */
+  .page-topnav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; }
+  .page-topnav a {
+    font-family: var(--font-label); font-size: 13px; color: var(--accent);
+    opacity: .75; text-decoration: none; cursor: pointer;
+  }
+  .page-topnav a:hover { opacity: 1; }
+
+  .cont-label {
+    font-family: var(--font-label); font-size: 11.5px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--accent); opacity: .8; margin: 0 0 14px;
+  }
+
   h3.chapter-title { font-family: var(--font-display); font-weight: 500; font-size: 25px; color: var(--accent); margin: 0 0 20px; }
   p { font-family: var(--font-ui); font-size: 16px; margin: 0 0 16px; }
   em { font-style: italic; color: var(--accent); }
 
-  /* capitular dourada na abertura de cada capítulo — ver visual-identity-serena.md */
-  .chapter > p:first-of-type::first-letter {
+  /* capitular dourada só na primeira página de cada capítulo */
+  .chapter-start > p:first-of-type::first-letter {
     font-family: var(--font-display);
     font-size: 2.8em;
     line-height: .75;
@@ -145,9 +195,54 @@
     color: var(--gold);
   }
 
-  .signature { font-family: var(--font-display); font-style: italic; font-size: 19px; margin-top: 8px; text-align: center; color: var(--accent); }
+  /* ---------- conclusão: momento visual próprio (santuário escuro) ---------- */
+  .finale-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 26px;
+    padding: 38px 28px 34px;
+    background: linear-gradient(165deg, var(--surface-dark-1), var(--surface-dark-2));
+    color: var(--surface-dark-fg);
+    box-shadow: 0 26px 52px -24px var(--shadow-tint);
+    text-align: center;
+  }
+  .finale-card::before {
+    content: '';
+    position: absolute; inset: -40% -20% auto -20%; height: 70%;
+    background: radial-gradient(circle, rgba(217,168,84,.22), transparent 65%);
+    pointer-events: none;
+  }
+  .finale-eyebrow {
+    font-family: var(--font-label); font-size: 12px; font-weight: 600; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--gold-soft); margin: 0 0 12px;
+  }
+  .finale-title {
+    font-family: var(--font-display); font-weight: 600; font-size: 28px; line-height: 1.2;
+    color: var(--surface-dark-fg); margin: 0 0 22px;
+  }
+  .finale-card p { color: var(--surface-dark-fg); opacity: .92; text-align: left; position: relative; }
+  .finale-card p em { color: var(--gold-soft); }
+  .finale-next {
+    position: relative;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(231,199,122,.35);
+    border-radius: 16px;
+    padding: 18px 18px 4px;
+    margin: 22px 0 4px;
+  }
+  .signature {
+    font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 22px;
+    line-height: 1.4; margin: 26px 0 0; color: var(--gold-soft) !important; opacity: 1 !important;
+    text-align: center !important;
+  }
+  .finale-card .img-badge-small { margin-top: 28px; border-color: var(--gold-soft); }
+  .finale-links { margin-top: 26px; display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative; }
+  .finale-links a {
+    font-family: var(--font-label); font-size: 13.5px; font-weight: 600;
+    color: var(--gold-soft); text-decoration: underline; cursor: pointer;
+  }
 
-  /* ---------- navegação de leitura ---------- */
+  /* ---------- navegação ---------- */
   .step-nav { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
   .btn {
     display: block; width: 100%; padding: 16px 20px; text-align: center;
@@ -174,9 +269,11 @@
 
   @media (max-width: 380px) {
     .wrap { padding: 22px 16px 34px; }
-    h1.title { font-size: 27px; }
+    .capa-title { font-size: 29px; }
     h3.chapter-title { font-size: 21px; }
-    .img-badge { max-width: 168px; }
+    .finale-title { font-size: 24px; }
+    .finale-card { padding: 30px 20px 28px; }
+    .img-badge { max-width: 172px; }
     .btn { padding: 14px 18px; font-size: 15px; }
   }
 </style>
@@ -186,7 +283,7 @@
   <div class="progress-shell" id="progressShell">
     <div class="progress-inner">
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-      <p class="progress-count" id="progressCount"></p>
+      <p class="progress-count"><span id="progressSection"></span><span id="progressPage"></span></p>
     </div>
   </div>
   <div id="steps"></div>
@@ -197,46 +294,47 @@
 (function () {
   'use strict';
 
-  // ---------- Dados: os 4 resultados (copy da Ge, corpo intacto) + rótulo/badge do arquétipo ----------
+  // ---------- Dados: os 4 resultados (copy da Ge; ajuste 22/07: rótulos no masculino
+  // genérico = nome do código, não da pessoa; corpo sem marcação de gênero) ----------
   var RESULTS = {
     aprovador: {
-      label: 'O Código da Aprovadora',
+      label: 'O Código do Aprovador',
       img: 'badge-aprovador.webp',
       corpo: [
-        'Você aprendeu cedo que ser amada é mais seguro do que ser você.',
+        'Você aprendeu cedo que agradar é mais seguro do que ser você.',
         'Então foi ajustando. A voz, os limites, as escolhas. Sempre com um olho no que os outros precisam de você. Sempre disponível. Sempre "tá bom."',
         'O resultado? Uma vida construída em torno da aprovação alheia. E um cansaço que nenhum descanso resolve, porque não é cansaço físico. É o cansaço de carregar uma versão sua que não é a sua.',
-        'O material abaixo vai te mostrar exatamente quando e como esse código foi instalado. E por que não é fraqueza. É neurobiologia.'
+        'O material a seguir vai te mostrar exatamente quando e como esse código foi instalado. E por que não é fraqueza. É neurobiologia.'
       ]
     },
     sabotador: {
-      label: 'O Código da Sabotadora',
+      label: 'O Código do Sabotador',
       img: 'badge-sabotador.webp',
       corpo: [
         'Você deseja. Planeja. Começa. E na hora H, algo te puxa de volta.',
         'Não é falta de força de vontade. É um arquivo gravado no seu subconsciente que diz que você não merece chegar lá. Que sucesso é perigoso. Que se você se destacar demais, vai perder algo, ou alguém.',
         'Então você chega perto. E derruba.',
-        'O material abaixo vai te mostrar a raiz exata desse código. Onde foi instalado, quem instalou, e por que seu cérebro ainda obedece ele.'
+        'O material a seguir vai te mostrar a raiz exata desse código. Onde foi instalado, quem instalou, e por que seu cérebro ainda obedece ele.'
       ]
     },
     ausente: {
-      label: 'O Código da Ausente',
+      label: 'O Código do Ausente',
       img: 'badge-ausente.webp',
       corpo: [
         'Você está presente em tudo. No trabalho, nas relações, nas obrigações.',
-        'Mas ausente de si mesma.',
+        'Mas ausente de si.',
         'Você vai, faz, cumpre. Funciona. Mas em algum ponto do caminho perdeu o fio de volta pra você. E agora quando alguém pergunta o que você quer, o que você sente, quem você é, a resposta demora mais do que deveria.',
-        'O material abaixo vai te mostrar como essa desconexão aconteceu. E que ela não é quem você é. É o que te fizeram ser.'
+        'O material a seguir vai te mostrar como essa desconexão aconteceu. E que ela não é quem você é. É o que te fizeram ser.'
       ]
     },
     controlador: {
-      label: 'O Código da Controladora',
+      label: 'O Código do Controlador',
       img: 'badge-controlador.webp',
       corpo: [
         'Você aprendeu que o mundo não é seguro quando as coisas saem do seu controle.',
-        'Então você planeja. Prevê. Organiza. Prepara pra todos os cenários possíveis. Às vezes parece que você está sempre pronta, mas nunca age de verdade.',
+        'Então você planeja. Prevê. Organiza. Prepara pra todos os cenários possíveis. Às vezes parece que você está sempre a postos, mas nunca age de verdade.',
         'Por baixo do controle existe um medo muito antigo: o de que se você soltar, tudo desmorona. Que a segurança depende de você segurando tudo.',
-        'O material abaixo vai te mostrar onde esse código nasceu. E o que acontece quando você descobre que pode soltar.'
+        'O material a seguir vai te mostrar onde esse código nasceu. E o que acontece quando você descobre que pode soltar.'
       ]
     }
   };
@@ -256,54 +354,75 @@
   var name = '';
   try { name = localStorage.getItem('quiz_name') || ''; } catch (_) {}
 
-  // ---------- Dados: os 5 capítulos (texto da Ge, intacto — só estrutura mudou) ----------
-  var CHAPTERS = [
+  // ---------- Dados: conteúdo paginado (texto da Ge intacto, salvo ajustes de
+  // gênero registrados na nota do projeto; só a divisão em páginas é nova) ----------
+  var PAGES = [
     {
-      title: 'Introdução',
+      sec: 'Introdução', tocTitle: 'Introdução', start: true,
       html:
         '<h3 class="chapter-title">Introdução</h3>' +
+        '<div class="chapter-start">' +
         '<p>Você quer mudar. De verdade. Não é falta de vontade, não é preguiça, não é falta de informação.</p>' +
         '<p>Você já leu. Já tentou. Já começou de novo.</p>' +
         '<p>E mesmo assim, uma força que você não consegue ver te puxa de volta pro mesmo lugar. Mesma ansiedade. Mesmo teto. Mesma sensação de que algo fundamental está errado, mas você não sabe nomear o quê.</p>' +
         '<p>Eu vou te dizer o quê.</p>' +
         '<p>Antes de você ter idade pra questionar qualquer coisa, alguém já tinha decidido quem você ia ser. Não com má intenção, necessariamente. Mas com consequências que você carrega até hoje.</p>' +
-        '<p>Esse material existe pra você ver o código. Porque você não pode reescrever o que não consegue enxergar.</p>'
+        '<p>Esse material existe pra você ver o código. Porque você não pode reescrever o que não consegue enxergar.</p>' +
+        '</div>'
     },
     {
-      title: 'Capítulo 1',
+      sec: 'Capítulo 1', tocTitle: 'Você Não Escolheu Quem Você É', start: true,
       html:
         '<h3 class="chapter-title">Capítulo 1: Você Não Escolheu Quem Você É</h3>' +
+        '<div class="chapter-start">' +
         '<p>Do nascimento até os 7 anos, seu cérebro operava predominantemente em ondas Theta.</p>' +
         '<p>Na vida adulta, você só entra em Theta em hipnose profunda ou nos segundos antes de dormir: aquele momento em que você já não controla mais os pensamentos.</p>' +
         '<p>Quando criança, você vivia nesse estado o tempo todo.</p>' +
         '<p>O córtex pré-frontal, a parte do cérebro responsável por julgamento crítico, lógica e análise, ainda não funcionava. Você não tinha como dizer "isso não faz sentido." Não tinha filtro. Não tinha defesa.</p>' +
+        '</div>'
+    },
+    {
+      sec: 'Capítulo 1',
+      html:
         '<p>Tudo que foi dito sobre você, mostrado pra você, sentido ao seu redor nessa fase foi gravado diretamente no subconsciente como verdade absoluta. Sem revisão. Sem questionamento. Sem sua permissão.</p>' +
         '<p>Seus pais, a televisão, a religião, as músicas, os adultos ao redor: todos escreveram no seu código antes que você soubesse ler.</p>' +
-        '<p>Você não aprendeu a ser você. Você foi formada pelos filtros de outras pessoas que também foram formadas pelos filtros das pessoas delas.</p>' +
+        '<p>Você não aprendeu a ser você. O que te formou foram os filtros de outras pessoas, que também foram formadas pelos filtros das pessoas delas.</p>' +
         '<p>E o mais silencioso nisso tudo: você cresceu achando que era sua personalidade.</p>'
     },
     {
-      title: 'Capítulo 2',
+      sec: 'Capítulo 2', tocTitle: 'A Escola Não Foi Feita Pra Você', start: true,
       html:
         '<h3 class="chapter-title">Capítulo 2: A Escola Não Foi Feita Pra Você</h3>' +
+        '<div class="chapter-start">' +
         '<p>O modelo escolar que você conheceu não foi criado pra desenvolver quem você é.</p>' +
         '<p>Ele foi desenhado na Prússia do século XIX com um objetivo muito claro: produzir operários que cumprissem ordens, soldados que não questionassem, cidadãos que se encaixassem.</p>' +
         '<p>Não é teoria conspiratória. É história documentada.</p>' +
         '<p>E o mecanismo principal desse modelo era simples: reprimir a pergunta.</p>' +
         '<p>A criança que questionava demais era problema. Rotulada como difícil, rebelde, lenta. O que o subconsciente gravou com isso? <em>Se destacar é perigoso. Agradar a autoridade é sobreviver.</em></p>' +
+        '</div>'
+    },
+    {
+      sec: 'Capítulo 2',
+      html:
         '<p>Você passou anos aprendendo fórmulas que nunca mais usou. Mas ninguém te ensinou como seu corpo funciona. Como suas emoções se movem. Como reconhecer o que é seu de verdade.</p>' +
         '<p>Fomos ensinados a buscar a cura fora: na caixinha, no especialista, no externo. A desconfiar do que o corpo sente. A calar o que não tem nome técnico.</p>' +
         '<p>A natureza cura em silêncio. O corpo sabe antes da mente. Mas isso não era útil pra um sistema que precisava de dependência.</p>'
     },
     {
-      title: 'Capítulo 3',
+      sec: 'Capítulo 3', tocTitle: 'O Cansaço Que Não Passa Com Descanso', start: true,
       html:
         '<h3 class="chapter-title">Capítulo 3: O Cansaço Que Não Passa Com Descanso</h3>' +
+        '<div class="chapter-start">' +
         '<p>O resultado de tudo isso é uma geração de adultos que acordam, trabalham, cumprem e sentem um vazio que não sabem nomear.</p>' +
         '<p>Não é depressão necessariamente. Não é ingratidão. É desconexão.</p>' +
         '<p>Você tenta mudar. Decide, planeja, começa. E na hora H, algo te para. Procrastinação. Sabotagem. Um motivo que aparece do nada.</p>' +
         '<p>Isso tem uma explicação biológica.</p>' +
         '<p>Sua mente consciente, a que decide que quer mudar, representa cerca de 5% da atividade cerebral. Os outros 95% são subconscientes. E o que está gravado nesses 95%? O código dos 0 aos 7 anos. As crenças que entraram sem filtro: <em>não mereço, não sou capaz, é perigoso me destacar, dinheiro é escasso, sucesso isola.</em></p>' +
+        '</div>'
+    },
+    {
+      sec: 'Capítulo 3',
+      html:
         '<p>Toda vez que você tenta avançar além do que foi programado como "seguro", o subconsciente ativa o freio. Não por maldade. Por proteção. Ele está te defendendo do desconhecido, mesmo que o desconhecido seja a sua própria liberdade.</p>' +
         '<p>Isso é autossabotagem. Não é fraqueza de caráter. É o seu código antigo cumprindo a função que foi instalada.</p>' +
         '<p>E tem uma imagem que nunca saiu da minha cabeça quando entendi isso:</p>' +
@@ -311,19 +430,29 @@
         '<p>Você carrega. Oferece. Entorna. Recarrega de novo. E nunca para pra perguntar: alguém algum dia perguntou o que eu queria colocar nesse cálice?</p>'
     },
     {
-      title: 'Conclusão',
+      sec: 'Conclusão', tocTitle: 'O Que Vem Depois de Ver', start: true, finale: true,
       html:
-        '<h3 class="chapter-title">Conclusão: O Que Vem Depois de Ver</h3>' +
         '<p>Entender o mecanismo não resolve tudo. Mas muda algo fundamental.</p>' +
         '<p>Você para de achar que o problema é você.</p>' +
         '<p>O problema é o código. E código pode ser reescrito.</p>' +
         '<p>Não com força de vontade. Não com mais disciplina. Mas acessando o subconsciente no estado certo, no momento certo, e instalando ali o que deveria ter sido instalado desde o início: a memória de quem você é antes de tudo que te ensinaram a ser.</p>' +
+        '<div class="finale-next">' +
         '<p>Agora que você entende o mecanismo, o próximo passo é entender qual código específico está rodando em você, e você já sabe isso pelo seu resultado.</p>' +
-        '<p>Nos próximos dias, eu vou te apresentar o Método Cálice: as ativações e meditações de reprogramação noturna criadas pra reescrever esse arquivo enquanto você dorme, direto na raiz onde tudo foi instalado.</p>'
+        '<p>Nos próximos dias, eu vou te apresentar o Método Cálice: as ativações e meditações de reprogramação noturna criadas pra reescrever esse arquivo enquanto você dorme, direto na raiz onde tudo foi instalado.</p>' +
+        '</div>'
     }
   ];
 
+  // Seções derivadas das páginas (pro índice e pro contador)
+  var SECTIONS = [];
+  PAGES.forEach(function (p, i) {
+    if (p.start) SECTIONS.push({ sec: p.sec, title: p.tocTitle, first: i, last: i, pages: 1 });
+    else { var s = SECTIONS[SECTIONS.length - 1]; s.last = i; s.pages++; }
+  });
+
   // ---------- Monta o DOM dos steps ----------
+  // Índices: 0 = capa · 1 = resultado · 2 = índice · 3+ = páginas de leitura
+  var PAGE_OFFSET = 3;
   var stepsEl = document.getElementById('steps');
   function el(html) {
     var d = document.createElement('div');
@@ -331,23 +460,16 @@
     return d.firstElementChild;
   }
 
-  // Step 0 — abertura: badge + texto personalizado (ou nota neutra sem resultado) + CTA
-  // que se adapta a quem já leu antes (ver setupOpening)
-  var openingHtml = result
-    ? '<div class="media-frame img-badge"><img src="../assets/img/' + RESULTS[result].img + '" alt="" /></div>' +
-      '<p class="eyebrow">' + RESULTS[result].label + '</p>' +
-      '<div class="opening-card">' +
-        (name ? '<p><strong>' + name + '</strong>, aqui está o que descobrimos.</p>' : '') +
-        RESULTS[result].corpo.map(function (p) { return '<p>' + p + '</p>'; }).join('') +
-      '</div>'
-    : '<div class="fallback-note">Não conseguimos identificar seu resultado específico do quiz, mas o conteúdo abaixo vale igual. Se quiser ver seu padrão personalizado, <a href="/quiz">refaça o diagnóstico aqui</a>.</div>';
-
+  // Step 0 — capa: simples e de impacto (título serifado escuro acima da badge)
+  var capaTitle = result ? RESULTS[result].label : 'O Código Invisível';
+  var capaEyebrow = result ? 'O Código Invisível · Método Cálice' : 'Método Cálice';
   stepsEl.appendChild(el(
-    '<div data-step data-kind="opening">' +
-      '<div class="wrap">' +
-        openingHtml +
-        '<h1 class="title">O Código Invisível</h1>' +
-        '<p class="subtitle">Como sua mente foi programada antes dos 7 anos, e o que fazer agora.</p>' +
+    '<div data-step data-kind="capa">' +
+      '<div class="wrap center">' +
+        '<p class="eyebrow">' + capaEyebrow + '</p>' +
+        '<h1 class="capa-title">' + capaTitle + '</h1>' +
+        '<p class="capa-sub">Como sua mente foi programada antes dos 7 anos, e o que fazer agora.</p>' +
+        (result ? '<div class="media-frame img-badge"><img src="../assets/img/' + RESULTS[result].img + '" alt="" /></div>' : '') +
         '<div class="step-nav">' +
           '<button type="button" class="btn btn-narrow" id="btnOpeningCta">Começar a leitura</button>' +
           '<button type="button" class="btn-ghost" id="btnRestart" style="display:none;">Recomeçar do início</button>' +
@@ -356,59 +478,143 @@
     '</div>'
   ));
 
-  // Steps 1-5 — capítulos, cada um com "voltar" pro anterior e avançar pro próximo;
-  // o último fecha com a assinatura + a badge reaparecendo (bookend) + link pro início
-  CHAPTERS.forEach(function (ch, i) {
-    var isLast = i === CHAPTERS.length - 1;
-    var closing = isLast
-      ? '<p class="signature">O código foi escrito sem a sua permissão.<br />Reescrevê-lo é um ato de soberania. 🍷</p>' +
-        (result ? '<div class="media-frame img-badge-small"><img src="../assets/img/' + RESULTS[result].img + '" alt="" /></div>' : '') +
-        '<div class="step-nav"><a class="back-link" data-goto-start>Voltar ao início</a></div>'
-      : '<div class="step-nav"><button type="button" class="btn btn-narrow" data-next>' +
-          (i === CHAPTERS.length - 2 ? 'Ver a conclusão' : 'Continuar lendo') +
+  // Step 1 — resultado: o texto personalizado, agora com tela própria
+  var resultadoHtml = result
+    ? '<p class="eyebrow">Seu resultado</p>' +
+      '<div class="opening-card">' +
+        (name ? '<p><strong>' + name + '</strong>, aqui está o que descobrimos.</p>' : '') +
+        RESULTS[result].corpo.map(function (p) { return '<p>' + p + '</p>'; }).join('') +
+      '</div>'
+    : '<div class="fallback-note">Não conseguimos identificar seu resultado específico do quiz, mas o conteúdo vale igual. Se quiser ver seu padrão personalizado, <a href="/quiz">refaça o diagnóstico aqui</a>.</div>';
+
+  stepsEl.appendChild(el(
+    '<div data-step data-kind="resultado">' +
+      '<div class="wrap">' +
+        '<a class="back-link" data-goto="0">&lsaquo; Voltar</a>' +
+        resultadoHtml +
+        '<div class="step-nav"><button type="button" class="btn btn-narrow" data-goto="2">Continuar</button></div>' +
+      '</div>' +
+    '</div>'
+  ));
+
+  // Step 2 — índice (estado das seções é re-renderizado sempre que a tela abre)
+  stepsEl.appendChild(el(
+    '<div data-step data-kind="toc">' +
+      '<div class="wrap">' +
+        '<a class="back-link" data-goto="1">&lsaquo; Voltar</a>' +
+        '<p class="eyebrow">O Código Invisível</p>' +
+        '<h2 class="toc-heading">Índice</h2>' +
+        '<div id="tocList"></div>' +
+        '<div class="step-nav"><button type="button" class="btn btn-narrow" id="btnTocContinue">Começar a leitura</button></div>' +
+      '</div>' +
+    '</div>'
+  ));
+
+  // Steps 3+ — páginas de leitura (conclusão tem tratamento visual próprio)
+  PAGES.forEach(function (p, i) {
+    var stepIdx = PAGE_OFFSET + i;
+    var isLast = i === PAGES.length - 1;
+    var topnav =
+      '<div class="page-topnav">' +
+        '<a data-goto="' + (stepIdx - 1) + '">&lsaquo; Voltar</a>' +
+        '<a data-goto="2">Índice</a>' +
+      '</div>';
+    var body;
+    if (p.finale) {
+      body =
+        '<div class="finale-card">' +
+          '<p class="finale-eyebrow">Conclusão</p>' +
+          '<h3 class="finale-title">O Que Vem Depois de Ver</h3>' +
+          p.html +
+          '<p class="signature">O código foi escrito sem a sua permissão.<br />Reescrevê-lo é um ato de soberania. 🍷</p>' +
+          (result ? '<div class="media-frame img-badge-small"><img src="../assets/img/' + RESULTS[result].img + '" alt="" /></div>' : '') +
+          '<div class="finale-links">' +
+            '<a data-goto="2">Voltar ao índice</a>' +
+          '</div>' +
+        '</div>';
+    } else {
+      var nextIsFinale = PAGES[i + 1] && PAGES[i + 1].finale;
+      body =
+        (p.start ? '' : '<p class="cont-label">' + p.sec + ' · continuação</p>') +
+        p.html +
+        '<div class="step-nav"><button type="button" class="btn btn-narrow" data-goto="' + (stepIdx + 1) + '">' +
+          (nextIsFinale ? 'Ver a conclusão' : 'Continuar lendo') +
         '</button></div>';
+    }
     stepsEl.appendChild(el(
-      '<div data-step data-kind="chapter">' +
-        '<div class="wrap">' +
-          '<a class="back-link" data-back>&lsaquo; Voltar</a>' +
-          '<div class="chapter">' + ch.html + '</div>' +
-          closing +
-        '</div>' +
+      '<div data-step data-kind="page" data-page="' + i + '">' +
+        '<div class="wrap wrap-top">' + topnav + body + '</div>' +
       '</div>'
     ));
   });
 
-  // ---------- Runtime de navegação (mesmo motor de steps do quiz/index.html) ----------
+  // ---------- Runtime de navegação ----------
   var steps = Array.prototype.slice.call(document.querySelectorAll('[data-step]'));
-  var TOTAL_CHAPTERS = CHAPTERS.length;
-  var FURTHEST_KEY = 'material_furthest';
+  var LAST_STEP = steps.length - 1;
+  // chave nova (v2): os índices mudaram com a repaginação, progresso salvo no
+  // formato antigo apontaria pra página errada
+  var FURTHEST_KEY = 'material_furthest_v2';
   var idx = 0;
 
   function getFurthest() {
     try {
       var v = parseInt(localStorage.getItem(FURTHEST_KEY), 10);
-      if (!isNaN(v) && v > 0 && v < steps.length) return v;
+      if (!isNaN(v) && v >= PAGE_OFFSET && v <= LAST_STEP) return v;
     } catch (_) {}
     return 0;
   }
   function markFurthest(i) {
     try {
-      if (i > getFurthest()) localStorage.setItem(FURTHEST_KEY, String(i));
+      if (i >= PAGE_OFFSET && i > getFurthest()) localStorage.setItem(FURTHEST_KEY, String(i));
     } catch (_) {}
   }
 
   function updateProgress() {
     var shell = document.getElementById('progressShell');
-    var onOpening = idx === 0;
-    shell.classList.toggle('is-hidden', onOpening);
-    if (!onOpening) {
-      document.getElementById('progressFill').style.width = ((idx / TOTAL_CHAPTERS) * 100) + '%';
-      document.getElementById('progressCount').textContent = 'Capítulo ' + idx + ' de ' + TOTAL_CHAPTERS;
+    var current = steps[idx];
+    var isPage = current.dataset.kind === 'page';
+    shell.classList.toggle('is-hidden', !isPage);
+    if (isPage) {
+      var pageIdx = Number(current.dataset.page);
+      document.getElementById('progressFill').style.width = (((pageIdx + 1) / PAGES.length) * 100) + '%';
+      document.getElementById('progressSection').textContent = PAGES[pageIdx].sec;
+      document.getElementById('progressPage').textContent = 'Página ' + (pageIdx + 1) + ' de ' + PAGES.length;
     }
+  }
+
+  function renderToc() {
+    var furthest = getFurthest();
+    var furthestPage = furthest ? furthest - PAGE_OFFSET : -1;
+    var list = document.getElementById('tocList');
+    list.innerHTML = '';
+    SECTIONS.forEach(function (s, si) {
+      var stateCls = '', stateTxt = s.pages + (s.pages > 1 ? ' páginas' : ' página');
+      if (furthestPage >= s.last && (furthest === LAST_STEP || furthestPage > s.last)) {
+        stateCls = 'is-done'; stateTxt = '✓';
+      } else if (furthestPage >= s.first && furthestPage <= s.last) {
+        stateCls = 'is-current'; stateTxt = 'em leitura';
+      }
+      var num = ('0' + (si + 1)).slice(-2);
+      list.appendChild(el(
+        '<button type="button" class="toc-item ' + stateCls + '" data-goto="' + (PAGE_OFFSET + s.first) + '">' +
+          '<span class="toc-num">' + num + '</span>' +
+          '<span class="toc-body">' +
+            '<span class="toc-meta">' + s.sec + '</span>' +
+            '<span class="toc-title">' + s.title + '</span>' +
+          '</span>' +
+          '<span class="toc-state">' + stateTxt + '</span>' +
+        '</button>'
+      ));
+    });
+    var cont = document.getElementById('btnTocContinue');
+    if (furthest === LAST_STEP) { cont.textContent = 'Reler o material'; cont.dataset.goto = String(PAGE_OFFSET); }
+    else if (furthest > 0) { cont.textContent = 'Continuar de onde parei'; cont.dataset.goto = String(furthest); }
+    else { cont.textContent = 'Começar a leitura'; cont.dataset.goto = String(PAGE_OFFSET); }
   }
 
   function render() {
     steps.forEach(function (s, i) { s.classList.toggle('is-active', i === idx); s.classList.toggle('is-enter', i === idx); });
+    if (idx === 2) renderToc();
     updateProgress();
     window.scrollTo(0, 0);
   }
@@ -424,24 +630,24 @@
       markFurthest(idx);
       var next = steps[idx];
       next.classList.add('is-active', 'is-enter');
+      if (idx === 2) renderToc();
       updateProgress();
       window.scrollTo(0, 0);
     }, TRANSITION_MS);
   }
 
-  // Abertura: CTA se adapta ao progresso salvo (localStorage), mas a tela sempre
-  // aparece primeiro — reorienta com a badge/texto personalizado toda visita,
-  // só o botão muda de "Começar" pra "Continuar de onde parei"
+  // Capa: CTA se adapta ao progresso salvo; a capa sempre abre primeiro
+  // (reorienta com a personalização a cada visita), só o botão muda
   (function setupOpening() {
     var saved = getFurthest();
     var cta = document.getElementById('btnOpeningCta');
     var restartBtn = document.getElementById('btnRestart');
-    if (saved > 0 && saved < steps.length - 1) {
-      cta.textContent = 'Continuar de onde parei (' + CHAPTERS[saved - 1].title + ')';
-      cta.addEventListener('click', function () { goToStep(saved); });
-    } else if (saved === steps.length - 1) {
+    if (saved === LAST_STEP) {
       cta.textContent = 'Reler o material';
-      cta.addEventListener('click', function () { goToStep(1); });
+      cta.addEventListener('click', function () { goToStep(2); });
+    } else if (saved > 0) {
+      cta.textContent = 'Continuar de onde parei (' + PAGES[saved - PAGE_OFFSET].sec + ')';
+      cta.addEventListener('click', function () { goToStep(saved); });
     } else {
       cta.addEventListener('click', function () { goToStep(1); });
     }
@@ -455,9 +661,8 @@
   })();
 
   stepsEl.addEventListener('click', function (e) {
-    if (e.target.closest('[data-next]')) { goToStep(idx + 1); return; }
-    if (e.target.closest('[data-back]')) { goToStep(idx - 1); return; }
-    if (e.target.closest('[data-goto-start]')) { goToStep(0); return; }
+    var target = e.target.closest('[data-goto]');
+    if (target) goToStep(Number(target.dataset.goto));
   });
 
   render();

@@ -354,7 +354,7 @@
         { texto: 'Me preocupo com o que os outros vão achar', emoji: '👀' },
         { texto: 'Começo a me perguntar se mereço realmente', emoji: '❓' },
         { texto: 'Percebo que nem sei mais o que queria de verdade', emoji: '🌫️' },
-        { texto: 'Fico ansiosa e começo a controlar cada detalhe', emoji: '🎯' }
+        { texto: 'A ansiedade bate e eu começo a controlar cada detalhe', emoji: '🎯' }
       ]
     },
     {
@@ -396,10 +396,10 @@
     {
       texto: 'Qual palavra mais descreve como você se sente quando pensa na sua vida hoje?',
       opcoes: [
-        { texto: 'Esgotada', emoji: '🪫' },
-        { texto: 'Perdida', emoji: '🧭' },
-        { texto: 'Presa', emoji: '🔒' },
-        { texto: 'Ansiosa', emoji: '🌪️' }
+        { texto: 'Sem energia', emoji: '🪫' },
+        { texto: 'Sem rumo', emoji: '🧭' },
+        { texto: 'Sem saída', emoji: '🔒' },
+        { texto: 'Sem paz', emoji: '🌪️' }
       ]
     },
     {
@@ -415,20 +415,21 @@
 
   var ARCHETYPES = ['aprovador', 'sabotador', 'ausente', 'controlador'];
 
-  // ---------- Dados: os 4 resultados (copy da Ge, intacta) + badge do arquétipo ----------
+  // ---------- Dados: os 4 resultados (copy da Ge; ajuste 22/07: rótulos no masculino
+  // genérico = nome do código, não da pessoa; corpo sem marcação de gênero) ----------
   var RESULTS = {
     aprovador: {
-      label: 'A Aprovadora',
+      label: 'O Aprovador',
       img: 'badge-aprovador.webp',
       corpo: [
-        'Você aprendeu cedo que ser amada é mais seguro do que ser você.',
+        'Você aprendeu cedo que agradar é mais seguro do que ser você.',
         'Então foi ajustando. A voz, os limites, as escolhas. Sempre com um olho no que os outros precisam de você. Sempre disponível. Sempre "tá bom."',
         'O resultado? Uma vida construída em torno da aprovação alheia. E um cansaço que nenhum descanso resolve, porque não é cansaço físico. É o cansaço de carregar uma versão sua que não é a sua.',
         'O material que você vai receber agora vai te mostrar exatamente quando e como esse código foi instalado. E por que não é fraqueza. É neurobiologia.'
       ]
     },
     sabotador: {
-      label: 'A Sabotadora',
+      label: 'O Sabotador',
       img: 'badge-sabotador.webp',
       corpo: [
         'Você deseja. Planeja. Começa. E na hora H, algo te puxa de volta.',
@@ -438,21 +439,21 @@
       ]
     },
     ausente: {
-      label: 'A Ausente',
+      label: 'O Ausente',
       img: 'badge-ausente.webp',
       corpo: [
         'Você está presente em tudo. No trabalho, nas relações, nas obrigações.',
-        'Mas ausente de si mesma.',
+        'Mas ausente de si.',
         'Você vai, faz, cumpre. Funciona. Mas em algum ponto do caminho perdeu o fio de volta pra você. E agora quando alguém pergunta o que você quer, o que você sente, quem você é, a resposta demora mais do que deveria.',
         'O material que você vai receber agora vai te mostrar como essa desconexão aconteceu. E que ela não é quem você é. É o que te fizeram ser.'
       ]
     },
     controlador: {
-      label: 'A Controladora',
+      label: 'O Controlador',
       img: 'badge-controlador.webp',
       corpo: [
         'Você aprendeu que o mundo não é seguro quando as coisas saem do seu controle.',
-        'Então você planeja. Prevê. Organiza. Prepara pra todos os cenários possíveis. Às vezes parece que você está sempre pronta, mas nunca age de verdade.',
+        'Então você planeja. Prevê. Organiza. Prepara pra todos os cenários possíveis. Às vezes parece que você está sempre a postos, mas nunca age de verdade.',
         'Por baixo do controle existe um medo muito antigo: o de que se você soltar, tudo desmorona. Que a segurança depende de você segurando tudo.',
         'O material que você vai receber agora vai te mostrar onde esse código nasceu. E o que acontece quando você descobre que pode soltar.'
       ]
@@ -513,7 +514,7 @@
   // caminho escurecendo · 6 → um ponto de luz se abrindo num campo escuro ·
   // pivot → cosmos/galáxia se reorganizando.
   var BRIDGES = {
-    1: { img: 'bridge-ondas.webp', lead: 'Você', rest: ' não está sozinha nisso. Esse tipo de resposta é mais comum do que parece.' },
+    1: { img: 'bridge-ondas.webp', lead: 'Você', rest: ' não está só nisso. Esse tipo de resposta é mais comum do que parece.' },
     4: { img: 'bridge-raizes.webp', lead: 'As', rest: ' próximas perguntas tocam num lugar mais fundo. Não existe resposta certa, só a que for mais verdadeira pra você agora.' },
     6: { img: 'bridge-flor.webp', lead: 'Nomear', rest: ' o que você sente já é o primeiro movimento de mudança. Falta só mais uma pergunta.' },
     pivot: { img: 'bridge-universo.webp', lead: 'Isso', rest: ' que você acabou de sentir tem nome. E o que tem nome, pode ser entendido. E o que pode ser entendido, pode ser reescrito.' }
