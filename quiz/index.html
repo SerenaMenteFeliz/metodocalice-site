@@ -319,6 +319,7 @@
     .result-orb { max-width: 116px; }
   }
 </style>
+<script src="../assets/posthog-init.js"></script>
 </head>
 <body>
 <div id="app">
@@ -632,6 +633,17 @@
   var steps = Array.prototype.slice.call(document.querySelectorAll('[data-step]'));
   var idx = 0;
 
+  // Um evento genérico com propriedades (em vez de um nome por step) — dá pra
+  // fazer funil/breakdown na PostHog sem precisar mapear um evento por tela.
+  function trackStepView(stepEl) {
+    phTrack('quiz_step_viewed', {
+      step_index: idx,
+      step_kind: stepEl.dataset.kind || null,
+      question_index: stepEl.dataset.qindex != null ? Number(stepEl.dataset.qindex) + 1 : null,
+      bridge: stepEl.dataset.bridge || null
+    });
+  }
+
   function updateProgress() {
     // Barra de progresso reflete só as 8 perguntas, não o funil inteiro (hook/loading/captura/resultado não contam)
     var current = steps[idx];
@@ -651,6 +663,7 @@
     });
     updateProgress();
     window.scrollTo(0, 0);
+    trackStepView(steps[idx]);
   }
 
   // Transição entre steps: fade-out do step atual, só então troca e faz
@@ -668,6 +681,7 @@
       next.classList.add('is-active', 'is-enter');
       updateProgress();
       window.scrollTo(0, 0);
+      trackStepView(next);
       afterRender();
     }, TRANSITION_MS);
   }
@@ -684,6 +698,7 @@
   // ---------- Lógica de cada step ----------
 
   document.getElementById('btnStart').addEventListener('click', function () {
+    phTrack('quiz_started');
     window.__funnel.continue();
   });
 
@@ -713,6 +728,7 @@
     var stepEl = btn.closest('[data-step]');
     var qi = Number(stepEl.dataset.qindex);
     localStorage.setItem('quiz_answer_' + (qi + 1), btn.dataset.archetype);
+    phTrack('quiz_question_answered', { question: qi + 1, archetype: btn.dataset.archetype });
     window.__funnel.continue();
   });
 
@@ -772,6 +788,7 @@
       }
     });
     localStorage.setItem('quiz_result', winner);
+    phTrack('quiz_completed', { result: winner });
     return winner;
   }
 
@@ -959,6 +976,13 @@
 
       clearMsgs();
       localStorage.setItem('quiz_email', value);
+
+      // Funde os eventos anônimos do funil (quiz_started, quiz_step_viewed...)
+      // no mesmo perfil da PostHog a partir daqui — o resto (lead_submitted)
+      // é capturado no backend, em api/subscribe.js, com o mesmo e-mail.
+      if (window.posthog && typeof posthog.identify === 'function') {
+        posthog.identify(value);
+      }
 
       sending = true;
       var btn = document.getElementById('btnCapture');

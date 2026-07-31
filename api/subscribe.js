@@ -13,6 +13,10 @@
 //   SUPABASE_SERVICE_ROLE_KEY   — Supabase → Project Settings → API → service_role
 //   BREVO_API_KEY               — (opcional) Brevo → SMTP & API → API Keys (v3)
 //   BREVO_LIST_ID               — (opcional) Brevo → Contatos → Listas → id numérico
+//   POSTHOG_API_KEY             — (opcional) chave pública do projeto PostHog (mesma
+//                                  usada no client, ver assets/posthog-init.js) — sem
+//                                  ela, pula silenciosamente (best-effort)
+//   POSTHOG_HOST                — (opcional) default https://us.i.posthog.com
 
 const VALID_RESULTS = ['aprovador', 'sabotador', 'ausente', 'controlador'];
 
@@ -66,7 +70,37 @@ export default async function handler(req, res) {
     brevo = 'failed';
   }
 
+  // ---------- 3. POSTHOG (best-effort, aguardado — funções serverless não
+  // garantem rodar código depois do response ser enviado, então "fire-and-
+  // forget" de verdade aqui perderia o evento às vezes; falha não derruba
+  // a captura, só não conta pro funil) ----------
+  // distinct_id = e-mail, mesmo valor que o client já chamou posthog.identify()
+  // no submit (quiz/index.html) — funde este evento no mesmo perfil dos
+  // eventos anônimos do funil (quiz_started, quiz_step_viewed...).
+  try {
+    await capturePostHog('lead_submitted', contact.email, event);
+  } catch (err) {
+    console.error('Falha no PostHog (lead já salvo):', err.message);
+  }
+
   return res.status(200).json({ ok: true, brevo });
+}
+
+async function capturePostHog(eventName, distinctId, properties) {
+  const apiKey = process.env.POSTHOG_API_KEY;
+  if (!apiKey) return; // sem chave, roda igual, só não mede (mesmo padrão do serena-app)
+  const host = process.env.POSTHOG_HOST || 'https://us.i.posthog.com';
+  const resp = await fetch(`${host}/capture/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      api_key: apiKey,
+      event: eventName,
+      distinct_id: distinctId,
+      properties,
+    }),
+  });
+  if (!resp.ok) throw new Error(`PostHog capture ${resp.status}`);
 }
 
 // --- Supabase: upsert contact + insert lead_event ---

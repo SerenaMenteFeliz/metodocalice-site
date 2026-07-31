@@ -277,6 +277,7 @@
     .btn { padding: 14px 18px; font-size: 15px; }
   }
 </style>
+<script src="../assets/posthog-init.js"></script>
 </head>
 <body>
 <div id="app">
@@ -353,6 +354,12 @@
   var result = getResult();
   var name = '';
   try { name = localStorage.getItem('quiz_name') || ''; } catch (_) {}
+
+  // Fecha a ponta final do funil (page_view genérico já é automático via
+  // capture_pageview no init) — chegar aqui é o objetivo declarado da isca.
+  if (window.posthog && typeof posthog.capture === 'function') {
+    posthog.capture('material_viewed', { result: result });
+  }
 
   // ---------- Dados: conteúdo paginado (texto da Ge intacto, salvo ajustes de
   // gênero registrados na nota do projeto; só a divisão em páginas é nova) ----------
