@@ -977,13 +977,6 @@
       clearMsgs();
       localStorage.setItem('quiz_email', value);
 
-      // Funde os eventos anônimos do funil (quiz_started, quiz_step_viewed...)
-      // no mesmo perfil da PostHog a partir daqui — o resto (lead_submitted)
-      // é capturado no backend, em api/subscribe.js, com o mesmo e-mail.
-      if (window.posthog && typeof posthog.identify === 'function') {
-        posthog.identify(value);
-      }
-
       sending = true;
       var btn = document.getElementById('btnCapture');
       btn.textContent = 'Enviando...';
@@ -1004,6 +997,19 @@
           utm_campaign: localStorage.getItem('quiz_utm_campaign') || '',
           utm_content: localStorage.getItem('quiz_utm_content') || 'geovana'
         })
+      }).then(function (resp) {
+        return resp.json();
+      }).then(function (data) {
+        // Identifica pelo contact_id (contacts.id do Supabase), não pelo
+        // e-mail — mesma convenção de identidade que o serena-app usa
+        // (Track.tsx, lib/analytics/server.ts). Funde os eventos anônimos
+        // do funil (quiz_started, quiz_step_viewed...) nesse perfil, e é o
+        // mesmo id que vai continuar sendo usado quando essa pessoa logar
+        // no app e comprar — sem isso, quiz e app virariam duas pessoas
+        // diferentes na PostHog.
+        if (data && data.contact_id && window.posthog && typeof posthog.identify === 'function') {
+          posthog.identify(data.contact_id);
+        }
       }).catch(function (err) {
         // fire-and-forget: não bloqueia a experiência se a rede falhar — o lead
         // ainda vê o resultado; o e-mail de reforço fica pendente até reenviar depois.

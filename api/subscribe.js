@@ -54,8 +54,9 @@ export default async function handler(req, res) {
   };
 
   // ---------- 1. SUPABASE (crítico) ----------
+  let contactId;
   try {
-    await saveToSupabase(contact, event);
+    contactId = await saveToSupabase(contact, event);
   } catch (err) {
     console.error('Falha ao gravar no Supabase:', err.message);
     return res.status(500).json({ error: 'Não conseguimos salvar agora. Tenta de novo?' });
@@ -74,16 +75,17 @@ export default async function handler(req, res) {
   // garantem rodar código depois do response ser enviado, então "fire-and-
   // forget" de verdade aqui perderia o evento às vezes; falha não derruba
   // a captura, só não conta pro funil) ----------
-  // distinct_id = e-mail, mesmo valor que o client já chamou posthog.identify()
-  // no submit (quiz/index.html) — funde este evento no mesmo perfil dos
-  // eventos anônimos do funil (quiz_started, quiz_step_viewed...).
+  // distinct_id = contactId (contacts.id do Supabase) — mesma convenção de
+  // identidade que o serena-app já usa (Track.tsx, captureServer), não
+  // e-mail. É o que deixa o perfil da pessoa contínuo do quiz até a compra:
+  // sem isso, quiz e app apareceriam como duas pessoas diferentes na PostHog.
   try {
-    await capturePostHog('lead_submitted', contact.email, event);
+    await capturePostHog('lead_submitted', contactId, event);
   } catch (err) {
     console.error('Falha no PostHog (lead já salvo):', err.message);
   }
 
-  return res.status(200).json({ ok: true, brevo });
+  return res.status(200).json({ ok: true, brevo, contact_id: contactId });
 }
 
 async function capturePostHog(eventName, distinctId, properties) {
@@ -150,6 +152,8 @@ async function saveToSupabase(contact, event) {
     const err = await eventResp.json().catch(() => ({}));
     throw new Error(`lead_events insert ${eventResp.status}: ${JSON.stringify(err)}`);
   }
+
+  return contactId;
 }
 
 // --- Brevo (best-effort) ---
