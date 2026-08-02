@@ -67,16 +67,28 @@
   .progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--gold-soft)); transition: width .3s ease; }
   .progress-count { font-family: var(--font-label); font-size: 12px; letter-spacing: .03em; color: var(--accent); margin: 8px 2px 0; }
 
-  /* ---------- footer legal (fixo embaixo, discreto) ---------- */
+  /* ---------- footer legal (fluxo normal, não fixo — não é um menu) ---------- */
+  /* fica no fim da página de verdade: em step curto, margin-top:auto + #app
+     min-height:100vh empurra ele pro rodapé da tela; em step longo (ex:
+     resultado), a página rola normalmente e o footer aparece só depois do
+     conteúdo, nunca sobreposto a ele. Antes era position:fixed com gradiente
+     que deixava o topo transparente — texto de step com rolagem longa ficava
+     visível "por baixo" do footer durante o scroll (achado real, print do
+     Yan 01/08). Corrigido tirando o fixed em vez de só opacificar o fundo:
+     o Yan não queria uma barra fixa ali, só o footer normal no final. */
   .legal-footer {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
-    text-align: center; padding: 10px 20px;
-    font-family: var(--font-label); font-size: 11px; color: var(--ink); opacity: .5; letter-spacing: .01em;
-    background: linear-gradient(0deg, var(--veil-2) 55%, rgba(247,239,227,0) 100%);
+    text-align: center; padding: 12px 20px 16px; margin-top: auto;
+    font-family: var(--font-label); font-size: 11px; color: var(--ink); opacity: .6; letter-spacing: .01em;
   }
+  .legal-footer a { color: inherit; text-decoration: underline; text-decoration-color: rgba(69,61,87,.35); }
+  .legal-footer a:hover { text-decoration-color: currentColor; }
 
-  /* ---------- zona de conteúdo: entre a barra fixa no topo e o footer fixo embaixo, sempre centralizada ---------- */
-  #steps { flex: 1; display: flex; flex-direction: column; padding-top: 60px; padding-bottom: 50px; overflow-y: auto; }
+  /* ---------- zona de conteúdo: abaixo da barra fixa no topo ---------- */
+  /* sem overflow-y:auto de propósito: quando o step cabe na tela, o flex:1
+     mais o min-height:100vh do #app já centralizam sem precisar de scroll
+     nenhum; quando não cabe (ex: resultado), a PÁGINA inteira rola — não
+     mais um scroll interno escondido atrás de um footer fixo. */
+  #steps { flex: 1; display: flex; flex-direction: column; padding-top: 60px; padding-bottom: 8px; }
   [data-step] { display: none; flex: 1; }
   [data-step].is-active { display: flex; }
   /* entrada: fade + leve subida. saída: só fade, mais rápido (a troca real de
@@ -302,7 +314,7 @@
   /* ---------- mobile-first: ajustes pra telas estreitas (iPhone SE/mini, ~360-390px) ---------- */
   @media (max-width: 380px) {
     .progress-shell { padding: 14px 16px 12px; }
-    #steps { padding-top: 52px; padding-bottom: 46px; }
+    #steps { padding-top: 52px; padding-bottom: 6px; }
     .wrap { padding: 22px 16px 34px; }
     h1 { font-size: 26px; }
     h2 { font-size: 21px; }
@@ -329,7 +341,7 @@
     </div>
   </div>
   <div id="steps"></div>
-  <footer class="legal-footer">Método Cálice · Política de Privacidade · Termos de Uso</footer>
+  <footer class="legal-footer">Método Cálice · <a href="/privacidade">Política de Privacidade</a> · <a href="/termos">Termos de Uso</a></footer>
 </div>
 
 <script>

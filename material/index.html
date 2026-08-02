@@ -9,22 +9,28 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
-  /* Tokens reais do tema "Santuário + Véu" — ver
-     .claude/skills/quiz-funnel-designer/references/visual-identity-serena.md */
+  /* Tema próprio do material (escuro), diferente do quiz (claro) — sinaliza,
+     só pelo fundo, que a pessoa saiu do quiz e entrou no material de verdade,
+     sem precisar dizer isso em texto. Mesmos tokens "Santuário + Véu" do resto
+     do Serena, só que a base clara do quiz vira a base escura que hoje só
+     aparecia nos cards de contraste (result-card, finale-card etc). Ver
+     .claude/skills/quiz-funnel-designer/references/visual-identity-serena.md
+     — decisão registrada aqui por ser específica desta página (achado real,
+     revisão do Yan em 01/08). */
   :root {
-    --veil-0: #fdfcfe;
-    --veil-1: #faf6fb;
-    --veil-2: #f7efe3;
-    --ink: #453d57;
-    --accent: #8a6d3e;
+    --veil-0: #1f1533;
+    --veil-1: #2b1e42;
+    --veil-2: #3c2a58;
+    --ink: #f3ecfb;
+    --accent: #e7c77a;
     --gold: #d9a854;
     --gold-soft: #e7c77a;
     --surface-dark-1: #2b1e42;
     --surface-dark-2: #4a2e63;
     --surface-dark-fg: #fbf6f0;
-    --glass: rgba(255, 255, 255, .62);
-    --glass-border: rgba(255, 255, 255, .9);
-    --shadow-tint: rgba(155, 130, 200, .4);
+    --glass: rgba(255, 255, 255, .08);
+    --glass-border: rgba(255, 255, 255, .16);
+    --shadow-tint: rgba(0, 0, 0, .45);
     --font-display: 'Cormorant Garamond', Georgia, serif;
     --font-label: 'Jost', sans-serif;
     --font-ui: 'Manrope', -apple-system, sans-serif;
@@ -51,7 +57,7 @@
   .progress-inner { max-width: 620px; margin: 0 auto; }
   .progress-track {
     height: 6px; background: var(--glass); border: 1px solid var(--glass-border);
-    border-bottom: 2px solid rgba(154, 130, 200, .38);
+    border-bottom: 2px solid rgba(217, 168, 84, .28);
     border-radius: 999px; overflow: hidden;
   }
   .progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--gold-soft)); transition: width .3s ease; }
@@ -61,8 +67,10 @@
      página inteira, footer fica no fim do conteúdo como numa página comum */
   .legal-footer {
     text-align: center; padding: 18px 20px 24px; margin-top: auto;
-    font-family: var(--font-label); font-size: 11px; color: var(--ink); opacity: .5; letter-spacing: .01em;
+    font-family: var(--font-label); font-size: 11px; color: var(--ink); opacity: .55; letter-spacing: .01em;
   }
+  .legal-footer a { color: inherit; text-decoration: underline; text-decoration-color: rgba(243,236,251,.35); }
+  .legal-footer a:hover { text-decoration-color: currentColor; }
 
   #steps { flex: 1; display: flex; flex-direction: column; padding-top: 56px; }
   [data-step] { display: none; flex: 1; }
@@ -118,18 +126,6 @@
     text-align: center; font-size: 17px; margin: 0 0 26px; opacity: .9;
   }
 
-  /* ---------- resultado personalizado (cartão de contraste) ---------- */
-  .opening-card {
-    margin-bottom: 30px;
-    padding: 24px 24px 8px;
-    border-radius: 20px;
-    background: linear-gradient(160deg, rgba(43,30,66,.94), rgba(74,46,99,.88));
-    color: var(--surface-dark-fg);
-    box-shadow: 0 20px 40px -22px var(--shadow-tint);
-  }
-  .opening-card p { font-size: 16px; margin: 0 0 16px; opacity: .94; }
-  .opening-card p strong { color: var(--gold-soft); }
-
   .fallback-note {
     font-family: var(--font-label);
     font-size: 14px;
@@ -138,7 +134,8 @@
     border: 1px solid var(--glass-border);
     border-radius: 14px;
     padding: 14px 16px;
-    margin-bottom: 30px;
+    margin: 0 0 26px;
+    text-align: center;
   }
   .fallback-note a { color: var(--accent); font-weight: 600; }
 
@@ -169,17 +166,7 @@
   .toc-item.is-current { border-color: var(--gold); }
 
   /* ---------- páginas de leitura ---------- */
-  .page-topnav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; }
-  .page-topnav a {
-    font-family: var(--font-label); font-size: 13px; color: var(--accent);
-    opacity: .75; text-decoration: none; cursor: pointer;
-  }
-  .page-topnav a:hover { opacity: 1; }
-
-  .cont-label {
-    font-family: var(--font-label); font-size: 11.5px; letter-spacing: .06em;
-    text-transform: uppercase; color: var(--accent); opacity: .8; margin: 0 0 14px;
-  }
+  .page-topnav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 26px; }
 
   h3.chapter-title { font-family: var(--font-display); font-weight: 500; font-size: 25px; color: var(--accent); margin: 0 0 20px; }
   p { font-family: var(--font-ui); font-size: 16px; margin: 0 0 16px; }
@@ -195,15 +182,17 @@
     color: var(--gold);
   }
 
-  /* ---------- conclusão: momento visual próprio (santuário escuro) ---------- */
+  /* ---------- conclusão: momento visual próprio (santuário mais fundo, com
+     borda dourada pra se destacar mesmo com a página inteira já escura) ---------- */
   .finale-card {
     position: relative;
     overflow: hidden;
     border-radius: 26px;
     padding: 38px 28px 34px;
     background: linear-gradient(165deg, var(--surface-dark-1), var(--surface-dark-2));
+    border: 1px solid rgba(231,199,122,.28);
     color: var(--surface-dark-fg);
-    box-shadow: 0 26px 52px -24px var(--shadow-tint);
+    box-shadow: 0 26px 52px -24px rgba(0,0,0,.5);
     text-align: center;
   }
   .finale-card::before {
@@ -237,35 +226,41 @@
   }
   .finale-card .img-badge-small { margin-top: 28px; border-color: var(--gold-soft); }
   .finale-links { margin-top: 26px; display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative; }
-  .finale-links a {
-    font-family: var(--font-label); font-size: 13.5px; font-weight: 600;
-    color: var(--gold-soft); text-decoration: underline; cursor: pointer;
-  }
 
   /* ---------- navegação ---------- */
   .step-nav { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
   .btn {
     display: block; width: 100%; padding: 16px 20px; text-align: center;
-    background: linear-gradient(160deg, var(--surface-dark-1), var(--surface-dark-2));
-    color: var(--surface-dark-fg);
-    font-family: var(--font-label); font-size: 15.5px; font-weight: 600; letter-spacing: .01em;
+    background: linear-gradient(160deg, var(--gold), var(--gold-soft));
+    color: var(--surface-dark-1);
+    font-family: var(--font-label); font-size: 15.5px; font-weight: 700; letter-spacing: .01em;
     border: 0; border-radius: 9999px; text-decoration: none; cursor: pointer; box-sizing: border-box;
-    box-shadow: 0 12px 26px -14px var(--shadow-tint);
+    box-shadow: 0 14px 28px -14px rgba(0,0,0,.5);
     transition: transform .12s ease, box-shadow .12s ease;
   }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 16px 30px -14px var(--shadow-tint); }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 18px 32px -14px rgba(0,0,0,.55); }
   .btn:active { transform: translateY(0) scale(.99); }
   .btn-narrow { width: auto; min-width: 250px; max-width: 340px; margin: 0 auto; }
-  .btn-ghost {
-    background: none; box-shadow: none; color: var(--accent);
+
+  /* botão secundário (voltar, índice, recomeçar) — sempre botão de verdade
+     (contorno + fundo translúcido + alvo de toque confortável), nunca texto
+     clicável cru: em mobile texto sublinhado é fácil de errar o toque e não
+     lê como ação. Achado real, revisão do Yan em 01/08. */
+  .btn-secondary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 11px 20px;
     font-family: var(--font-label); font-size: 13.5px; font-weight: 600;
-    border: 0; padding: 4px; cursor: pointer; text-decoration: underline;
+    color: var(--gold-soft);
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 9999px;
+    cursor: pointer;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: border-color .15s ease, background .15s ease;
   }
-  .back-link {
-    display: inline-block; font-family: var(--font-label); font-size: 13px;
-    color: var(--accent); opacity: .75; text-decoration: none; margin-bottom: 24px; cursor: pointer;
-  }
-  .back-link:hover { opacity: 1; }
+  .btn-secondary:hover { border-color: var(--gold); background: rgba(255,255,255,.14); }
+  .btn-secondary:active { transform: scale(.98); }
 
   @media (max-width: 380px) {
     .wrap { padding: 22px 16px 34px; }
@@ -275,6 +270,7 @@
     .finale-card { padding: 30px 20px 28px; }
     .img-badge { max-width: 172px; }
     .btn { padding: 14px 18px; font-size: 15px; }
+    .btn-secondary { padding: 10px 16px; font-size: 13px; }
   }
 </style>
 <script src="../assets/posthog-init.js"></script>
@@ -288,7 +284,7 @@
     </div>
   </div>
   <div id="steps"></div>
-  <footer class="legal-footer">Método Cálice · Política de Privacidade · Termos de Uso</footer>
+  <footer class="legal-footer">Método Cálice · <a href="/privacidade">Política de Privacidade</a> · <a href="/termos">Termos de Uso</a></footer>
 </div>
 
 <script>
@@ -458,8 +454,11 @@
   });
 
   // ---------- Monta o DOM dos steps ----------
-  // Índices: 0 = capa · 1 = resultado · 2 = índice · 3+ = páginas de leitura
-  var PAGE_OFFSET = 3;
+  // Índices: 0 = capa · 1 = índice · 2+ = páginas de leitura
+  // (a tela de "resultado" que existia entre capa e índice foi removida em
+  // 01/08: repetia, palavra por palavra, o que a pessoa já tinha acabado de
+  // ler no resultado do quiz — achado real, revisão do Yan no navegador)
+  var PAGE_OFFSET = 2;
   var stepsEl = document.getElementById('steps');
   function el(html) {
     var d = document.createElement('div');
@@ -467,7 +466,9 @@
     return d.firstElementChild;
   }
 
-  // Step 0 — capa: simples e de impacto (título serifado escuro acima da badge)
+  // Step 0 — capa: simples e de impacto (título serifado acima da badge).
+  // Reforça o resultado (título + badge) sem repetir o corpo do texto, que a
+  // pessoa já leu na tela de resultado do quiz há poucos segundos.
   var capaTitle = result ? RESULTS[result].label : 'O Código Invisível';
   var capaEyebrow = result ? 'O Código Invisível · Método Cálice' : 'Método Cálice';
   stepsEl.appendChild(el(
@@ -476,39 +477,22 @@
         '<p class="eyebrow">' + capaEyebrow + '</p>' +
         '<h1 class="capa-title">' + capaTitle + '</h1>' +
         '<p class="capa-sub">Como sua mente foi programada antes dos 7 anos, e o que fazer agora.</p>' +
-        (result ? '<div class="media-frame img-badge"><img src="../assets/img/' + RESULTS[result].img + '" alt="" /></div>' : '') +
+        (result
+          ? '<div class="media-frame img-badge"><img src="../assets/img/' + RESULTS[result].img + '" alt="" /></div>'
+          : '<div class="fallback-note">Não conseguimos identificar seu resultado específico do quiz, mas o conteúdo vale igual. Se quiser ver seu padrão personalizado, <a href="/quiz">refaça o diagnóstico aqui</a>.</div>') +
         '<div class="step-nav">' +
           '<button type="button" class="btn btn-narrow" id="btnOpeningCta">Começar a leitura</button>' +
-          '<button type="button" class="btn-ghost" id="btnRestart" style="display:none;">Recomeçar do início</button>' +
+          '<button type="button" class="btn-secondary" id="btnRestart" style="display:none;">Recomeçar do início</button>' +
         '</div>' +
       '</div>' +
     '</div>'
   ));
 
-  // Step 1 — resultado: o texto personalizado, agora com tela própria
-  var resultadoHtml = result
-    ? '<p class="eyebrow">Seu resultado</p>' +
-      '<div class="opening-card">' +
-        (name ? '<p><strong>' + name + '</strong>, aqui está o que descobrimos.</p>' : '') +
-        RESULTS[result].corpo.map(function (p) { return '<p>' + p + '</p>'; }).join('') +
-      '</div>'
-    : '<div class="fallback-note">Não conseguimos identificar seu resultado específico do quiz, mas o conteúdo vale igual. Se quiser ver seu padrão personalizado, <a href="/quiz">refaça o diagnóstico aqui</a>.</div>';
-
-  stepsEl.appendChild(el(
-    '<div data-step data-kind="resultado">' +
-      '<div class="wrap">' +
-        '<a class="back-link" data-goto="0">&lsaquo; Voltar</a>' +
-        resultadoHtml +
-        '<div class="step-nav"><button type="button" class="btn btn-narrow" data-goto="2">Continuar</button></div>' +
-      '</div>' +
-    '</div>'
-  ));
-
-  // Step 2 — índice (estado das seções é re-renderizado sempre que a tela abre)
+  // Step 1 — índice (estado das seções é re-renderizado sempre que a tela abre)
   stepsEl.appendChild(el(
     '<div data-step data-kind="toc">' +
       '<div class="wrap">' +
-        '<a class="back-link" data-goto="1">&lsaquo; Voltar</a>' +
+        '<button type="button" class="btn-secondary" data-goto="0" style="margin-bottom:20px;">&lsaquo; Voltar</button>' +
         '<p class="eyebrow">O Código Invisível</p>' +
         '<h2 class="toc-heading">Índice</h2>' +
         '<div id="tocList"></div>' +
@@ -517,14 +501,14 @@
     '</div>'
   ));
 
-  // Steps 3+ — páginas de leitura (conclusão tem tratamento visual próprio)
+  // Steps 2+ — páginas de leitura (conclusão tem tratamento visual próprio)
   PAGES.forEach(function (p, i) {
     var stepIdx = PAGE_OFFSET + i;
     var isLast = i === PAGES.length - 1;
     var topnav =
       '<div class="page-topnav">' +
-        '<a data-goto="' + (stepIdx - 1) + '">&lsaquo; Voltar</a>' +
-        '<a data-goto="2">Índice</a>' +
+        '<button type="button" class="btn-secondary" data-goto="' + (stepIdx - 1) + '">&lsaquo; Voltar</button>' +
+        '<button type="button" class="btn-secondary" data-goto="' + (PAGE_OFFSET - 1) + '">Índice</button>' +
       '</div>';
     var body;
     if (p.finale) {
@@ -536,13 +520,12 @@
           '<p class="signature">O código foi escrito sem a sua permissão.<br />Reescrevê-lo é um ato de soberania. 🍷</p>' +
           (result ? '<div class="media-frame img-badge-small"><img src="../assets/img/' + RESULTS[result].img + '" alt="" /></div>' : '') +
           '<div class="finale-links">' +
-            '<a data-goto="2">Voltar ao índice</a>' +
+            '<button type="button" class="btn-secondary" data-goto="' + (PAGE_OFFSET - 1) + '">Voltar ao índice</button>' +
           '</div>' +
         '</div>';
     } else {
       var nextIsFinale = PAGES[i + 1] && PAGES[i + 1].finale;
       body =
-        (p.start ? '' : '<p class="cont-label">' + p.sec + ' · continuação</p>') +
         p.html +
         '<div class="step-nav"><button type="button" class="btn btn-narrow" data-goto="' + (stepIdx + 1) + '">' +
           (nextIsFinale ? 'Ver a conclusão' : 'Continuar lendo') +
@@ -558,9 +541,10 @@
   // ---------- Runtime de navegação ----------
   var steps = Array.prototype.slice.call(document.querySelectorAll('[data-step]'));
   var LAST_STEP = steps.length - 1;
-  // chave nova (v2): os índices mudaram com a repaginação, progresso salvo no
-  // formato antigo apontaria pra página errada
-  var FURTHEST_KEY = 'material_furthest_v2';
+  // chave nova (v3): a remoção da tela de resultado duplicada (01/08) mudou
+  // os índices de novo — progresso salvo no formato v2 apontaria pra página
+  // errada (achado real: v2 já tinha sido criada por esse mesmo motivo em 23/07)
+  var FURTHEST_KEY = 'material_furthest_v3';
   var idx = 0;
 
   function getFurthest() {
@@ -621,7 +605,7 @@
 
   function render() {
     steps.forEach(function (s, i) { s.classList.toggle('is-active', i === idx); s.classList.toggle('is-enter', i === idx); });
-    if (idx === 2) renderToc();
+    if (idx === PAGE_OFFSET - 1) renderToc();
     updateProgress();
     window.scrollTo(0, 0);
   }
@@ -637,7 +621,7 @@
       markFurthest(idx);
       var next = steps[idx];
       next.classList.add('is-active', 'is-enter');
-      if (idx === 2) renderToc();
+      if (idx === PAGE_OFFSET - 1) renderToc();
       updateProgress();
       window.scrollTo(0, 0);
     }, TRANSITION_MS);
@@ -651,18 +635,18 @@
     var restartBtn = document.getElementById('btnRestart');
     if (saved === LAST_STEP) {
       cta.textContent = 'Reler o material';
-      cta.addEventListener('click', function () { goToStep(2); });
+      cta.addEventListener('click', function () { goToStep(PAGE_OFFSET - 1); });
     } else if (saved > 0) {
       cta.textContent = 'Continuar de onde parei (' + PAGES[saved - PAGE_OFFSET].sec + ')';
       cta.addEventListener('click', function () { goToStep(saved); });
     } else {
-      cta.addEventListener('click', function () { goToStep(1); });
+      cta.addEventListener('click', function () { goToStep(PAGE_OFFSET - 1); });
     }
     if (saved > 0) {
-      restartBtn.style.display = 'inline';
+      restartBtn.style.display = 'inline-flex';
       restartBtn.addEventListener('click', function () {
         try { localStorage.removeItem(FURTHEST_KEY); } catch (_) {}
-        goToStep(1);
+        goToStep(PAGE_OFFSET - 1);
       });
     }
   })();
