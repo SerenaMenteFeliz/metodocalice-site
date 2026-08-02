@@ -1,5 +1,9 @@
 {
   "redirects": [
     { "source": "/", "destination": "/quiz", "permanent": false }
+  ],
+  "crons": [
+    { "path": "/api/cron-nutricao", "schedule": "0 12 * * *" },
+    { "path": "/api/cron-venda", "schedule": "30 12 * * *" }
   ]
 }
