@@ -1055,8 +1055,17 @@
         // mesmo id que vai continuar sendo usado quando essa pessoa logar
         // no app e comprar — sem isso, quiz e app virariam duas pessoas
         // diferentes na PostHog.
-        if (data && data.contact_id && window.posthog && typeof posthog.identify === 'function') {
-          posthog.identify(data.contact_id);
+        if (data && data.contact_id) {
+          if (window.posthog && typeof posthog.identify === 'function') {
+            posthog.identify(data.contact_id);
+          }
+          // Carimba o cid no link do material (mesmo se essa pessoa nunca
+          // clicar agora e só voltar via e-mail dias depois com um cookie
+          // diferente) — ver identify() em material/index.html, achado 04/08.
+          var btnMaterial = document.getElementById('btnMaterial');
+          if (btnMaterial && btnMaterial.href) {
+            btnMaterial.href += (btnMaterial.href.indexOf('?') === -1 ? '?' : '&') + 'cid=' + encodeURIComponent(data.contact_id);
+          }
         }
       }).catch(function (err) {
         // fire-and-forget: não bloqueia a experiência se a rede falhar — o lead

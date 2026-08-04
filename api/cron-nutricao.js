@@ -109,6 +109,7 @@ export default async function handler(req, res) {
         nome: firstName(contact.name),
         result: byContact.get(contactId).result,
         unsubscribeUrl: `https://metodocalice.serenamentefeliz.com/api/descadastrar?c=${contactId}`,
+        contactId,
       };
 
       try {

@@ -351,6 +351,23 @@
   var name = '';
   try { name = localStorage.getItem('quiz_name') || ''; } catch (_) {}
 
+  // ?cid=<contact_id> identifica ANTES de trackear — achado real (04/08):
+  // o clique no CTA do quiz (mesma sessão) já ficava atribuído de graça,
+  // porque identify() lá persiste o distinct_id no localStorage do próprio
+  // domínio e esta página herda ele sozinha. Mas qualquer visita vinda de
+  // outra sessão/aparelho (voltar a ler dias depois, abrir o link recebido
+  // por e-mail noutro dispositivo) não tinha esse cookie, então virava uma
+  // pessoa anônima nova, sem ligação nenhuma com quem fez o quiz — o
+  // material aparecia "maior" que o resultado completo no painel, e não
+  // dava pra saber quem realmente veio do quiz. cid explícito na URL
+  // resolve isso não importa a sessão (mesmo padrão de ?r= pro resultado).
+  try {
+    var cid = new URLSearchParams(window.location.search).get('cid');
+    if (cid && window.posthog && typeof posthog.identify === 'function') {
+      posthog.identify(cid);
+    }
+  } catch (_) {}
+
   // Fecha a ponta final do funil (page_view genérico já é automático via
   // capture_pageview no init) — chegar aqui é o objetivo declarado da isca.
   if (window.posthog && typeof posthog.capture === 'function') {
