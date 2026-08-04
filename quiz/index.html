@@ -645,6 +645,20 @@
   var steps = Array.prototype.slice.call(document.querySelectorAll('[data-step]'));
   var idx = 0;
 
+  // ?preview_step=N (junto com ?preview=1, ver assets/posthog-init.js) pula
+  // direto pro step N no load — usado pelo /painel do zuppas-life pra
+  // embutir a tela ao vivo de uma etapa específica num iframe, em vez de
+  // forçar quem está olhando o funil a responder o quiz inteiro de novo.
+  var isPreviewJump = false;
+  (function jumpToPreviewStep() {
+    var raw = new URLSearchParams(window.location.search).get('preview_step');
+    if (raw === null) return;
+    var n = parseInt(raw, 10);
+    if (isNaN(n) || n < 0 || n >= steps.length) return;
+    idx = n;
+    isPreviewJump = true;
+  })();
+
   // Um evento genérico com propriedades (em vez de um nome por step) — dá pra
   // fazer funil/breakdown na PostHog sem precisar mapear um evento por tela.
   function trackStepView(stepEl) {
@@ -704,6 +718,28 @@
     continue: function () { if (idx < steps.length - 1) goToStep(idx + 1); },
     back: function () { if (idx > 0) goToStep(idx - 1); }
   };
+
+  // Preview ao vivo (ver jumpToPreviewStep acima): revelação e resultado só
+  // ganham conteúdo através do cálculo no fim do quiz de verdade (o ciclo
+  // normal é runLoading -> computeResult). Popular as duas com um resultado
+  // (primeiro arquétipo — não há resposta salva pra desempatar de verdade)
+  // evita que apareçam com "—" vazio quando abertas direto via preview_step.
+  // Bridge já tem fallback sem nome no próprio helper (withName). A etapa
+  // de loading fica com o markup estático — não roda a animação/avanço
+  // automático, que levaria pra outro step sozinho.
+  if (isPreviewJump) {
+    var previewResult = computeResult();
+    populateReveal(previewResult);
+    populateResult(previewResult);
+    var previewStepEl = steps[idx];
+    if (previewStepEl.dataset.bridge) {
+      var previewBridge = BRIDGES[previewStepEl.dataset.bridge];
+      previewStepEl.querySelector('[data-bridge-quote]').textContent = withName(previewBridge.lead, previewBridge.rest);
+    }
+    if (previewStepEl.dataset.kind === 'capture') {
+      document.getElementById('captureHeading').textContent = 'Pra onde te mando os detalhes do seu resultado?';
+    }
+  }
 
   render();
 

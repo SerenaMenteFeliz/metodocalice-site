@@ -16,7 +16,15 @@
 
 var POSTHOG_PROJECT_KEY = 'phc_rdbuvECaz39QiEK4KQZxwxSGTbkEaHvFghbTDS8VXcSL';
 
-if (POSTHOG_PROJECT_KEY.indexOf('__POSTHOG') !== 0) {
+// ?preview=1 é usado pelo /painel do zuppas-life pra embutir uma tela do
+// quiz ao vivo (iframe) na visualização interna de etapa — sem isso, cada
+// abertura do popup de preview contaria como pageview/step real e inflaria
+// o próprio funil que o painel existe pra medir. Nunca chamar posthog.init
+// nesse caso: sem init, `posthog.capture` nunca é definido pelo snippet
+// (ver g() acima), e phTrack() já é no-op quando isso acontece.
+var IS_PREVIEW = new URLSearchParams(window.location.search).get('preview') === '1';
+
+if (!IS_PREVIEW && POSTHOG_PROJECT_KEY.indexOf('__POSTHOG') !== 0) {
   posthog.init(POSTHOG_PROJECT_KEY, {
     api_host: 'https://us.i.posthog.com',
     person_profiles: 'identified_only',
