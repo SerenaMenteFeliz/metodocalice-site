@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     utm_source: body.utm_source || null,
     utm_medium: body.utm_medium || null,
     utm_campaign: body.utm_campaign || null,
-    utm_content: body.utm_content || 'geovana',
+    utm_content: body.utm_content || 'direto',
     quiz_result: result,
   };
 
