@@ -15,8 +15,9 @@ Contexto de produto, copy e decisões vivem no **Vault Zuppas**
 ## Estrutura
 
 ```
-quiz/index.html          funil completo (hook, 8 perguntas, loading, revelação, captura,
-                         resultado) — runtime próprio, sem dependência externa
+quiz/variantes.json      AS TELAS do quiz, uma entrada por variante (v1, v2...): textos,
+                         ordem, opções, resultados. Fonte única, lida também pelo zuppas-life
+quiz/index.html          só o desenho e o runtime: sorteia a variante e monta as telas do JSON
 material/index.html      entrega do material grátis, lê ?r=<slug> pra abrir por arquétipo
 api/subscribe.js         grava o lead no Supabase (crítico) e no Brevo (best-effort)
 api/cron-nutricao.js     cron diário 12:00 UTC — sequência de nutrição pós-quiz
@@ -67,10 +68,35 @@ Quem é quem vem de `?utm_content=` (`geovana`, `camilla`, `liz`). Havia um **de
 `'geovana'`** que atribuía tudo a ela quando a URL vinha sem UTM; foi removido no commit `cec9f52`.
 Não reintroduzir default de atribuição: campo vazio é melhor que campo com palpite.
 
-## `?preview=1` e `?preview_step=N`
+## Variantes do quiz (desde 12/09/2026)
+
+**Editar o quiz é editar `quiz/variantes.json`, não o HTML.** O painel de funis do `zuppas-life`
+lê esse mesmo arquivo do site no ar (lista de etapas, nomes, preview), então a edição chega nos
+dois sem cópia à mão. Antes disso o painel tinha a ordem das 18 telas copiada numa lista, que
+passaria a mentir em silêncio no dia em que uma tela entrasse ou saísse. Regras de edição no topo
+do próprio JSON (`_leia_antes`); as que mais mordem:
+
+- **id de tela é identidade na PostHog** (`step_id`). Mudar o texto mantém o id; tela nova ganha
+  id novo. Renomear id de tela que já recebeu tráfego deixa os números dela órfãos.
+- **`status`/`peso`**: `ativa` recebe tráfego pelo peso; `rascunho` e `encerrada` só abrem por
+  `?v=<id>`. O sorteio é local (sem feature flag, pra não atrasar a abertura) e fica guardado em
+  `localStorage.quiz_variante`: a mesma pessoa sempre vê a mesma variante.
+- Todo evento sai com `quiz_variant` (via `posthog.register`, pega até o `material_viewed`) e o
+  `quiz_step_viewed` ganhou `step_id`. O lead grava `lead_events.quiz_variant`.
+- Tipo de tela novo (fora de abertura, nome, pergunta, pausa, calculando, revelacao, captura,
+  resultado) exige código no `quiz/index.html`. Arquétipo novo exige `VALID_RESULTS` no
+  `api/subscribe.js` e o material.
+
+**Migration `0004_add_quiz_variant.sql`**: enquanto não for aplicada, o PostgREST recusa o insert
+inteiro com `PGRST204`, e o `subscribe.js` regrava o lead sem a coluna. Não tirar essa volta
+antes de a coluna existir: sem ela, todo lead vira 500.
+
+## `?preview=1`, `?preview_step=` e `?v=`
 
 O painel interno do `zuppas-life` embute o quiz ao vivo num iframe e navega etapa a etapa por esses
-parâmetros; o PostHog é suprimido nesse modo. Não remover nem renomear sem ajustar o `zuppas-life`.
+parâmetros; o PostHog é suprimido com `preview=1`. `preview_step` aceita o id da tela (`captura`,
+é o que o painel usa) ou a posição (formato antigo). `v` escolhe a variante. Não remover nem
+renomear sem ajustar o `zuppas-life`.
 
 ## E-mail
 

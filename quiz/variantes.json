@@ -1,0 +1,501 @@
+{
+  "_leia_antes": [
+    "Fonte única das telas do quiz (12/09/2026). O quiz/index.html só desenha a variante sorteada, e o painel do zuppas-life lê ESTE arquivo pra montar a lista de etapas e o preview. Editar aqui atualiza os dois, sem cópia à mão.",
+    "Cada variante é independente: mexer no V2 nunca muda o V1. Criar variante = copiar um bloco inteiro e trocar o id.",
+    "status: 'ativa' recebe tráfego pelo peso; 'rascunho' e 'encerrada' só abrem por ?v=<id>. peso é a fatia entre as ativas (100 e 100 = meio a meio). O sorteio fica guardado no navegador, então a mesma pessoa sempre vê a mesma variante.",
+    "id de tela é a identidade dela na PostHog (step_id). Não renomear id de variante que já recebeu tráfego: os números dela ficam órfãos. Pra mudar o conteúdo de uma tela, mudar o texto e manter o id. Tela nova ganha id novo.",
+    "rotulo é o nome que aparece no painel. Não aparece pra quem faz o quiz.",
+    "Aceitam HTML simples (<em>, <span class=\"mark\">): abertura.titulo, abertura.subtitulo, abertura.texto, revelacao.texto e resultados.*.corpo. Todo o resto é texto puro.",
+    "Tipos de tela: abertura, nome, pergunta, pausa, calculando, revelacao, captura, resultado. Tipo novo exige código no quiz/index.html.",
+    "O arquétipo de cada opção vem de 'arquetipo', não da posição. Os slugs precisam existir em 'resultados' e em VALID_RESULTS do api/subscribe.js, e o material/index.html abre por eles.",
+    "Imagens em assets/img/. Imagem nova entra lá antes de ser citada aqui."
+  ],
+  "variantes": [
+    {
+      "id": "v1",
+      "nome": "V1",
+      "descricao": "Quiz original, no ar desde 16/07/2026",
+      "status": "ativa",
+      "peso": 100,
+      "telas": [
+        {
+          "id": "abertura",
+          "rotulo": "Abertura (hook)",
+          "tipo": "abertura",
+          "titulo": "Tem uma parte de você que trava, sempre no <em>mesmo ponto</em>.",
+          "subtitulo": "Não é falta de força de vontade: é um <span class=\"mark\">código específico</span>, instalado em você há muito tempo.",
+          "imagem": "hook.webp",
+          "texto": "Descubra o seu em 8 perguntas e <span class=\"mark\">comece a reescrever o que não te serve mais</span>.",
+          "botao": "Descobrir meu código"
+        },
+        {
+          "id": "nome",
+          "rotulo": "Nome",
+          "tipo": "nome",
+          "titulo": "Antes de começarmos: como posso te chamar?",
+          "placeholder": "Seu primeiro nome",
+          "botao": "Continuar"
+        },
+        {
+          "id": "p1",
+          "rotulo": "Pergunta 1",
+          "tipo": "pergunta",
+          "texto": "Quando alguém te pede algo que você não quer fazer, você normalmente:",
+          "opcoes": [
+            { "texto": "Diz sim pra não decepcionar", "emoji": "🤝", "arquetipo": "aprovador" },
+            { "texto": "Fica procrastinando até a situação se resolver sozinha", "emoji": "⏳", "arquetipo": "sabotador" },
+            { "texto": "Faz no automático, sem nem pensar se quer ou não", "emoji": "🤖", "arquetipo": "ausente" },
+            { "texto": "Analisa muito antes de responder pra não perder o controle", "emoji": "🧠", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "p2",
+          "rotulo": "Pergunta 2",
+          "tipo": "pergunta",
+          "texto": "Quando está muito perto de alcançar algo importante, o que acontece?",
+          "opcoes": [
+            { "texto": "Me preocupo com o que os outros vão achar", "emoji": "👀", "arquetipo": "aprovador" },
+            { "texto": "Começo a me perguntar se mereço realmente", "emoji": "❓", "arquetipo": "sabotador" },
+            { "texto": "Percebo que nem sei mais o que queria de verdade", "emoji": "🌫️", "arquetipo": "ausente" },
+            { "texto": "A ansiedade bate e eu começo a controlar cada detalhe", "emoji": "🎯", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "pausa-1",
+          "rotulo": "Pausa",
+          "tipo": "pausa",
+          "imagem": "bridge-ondas.webp",
+          "texto": "Você não está só nisso. Esse tipo de resposta é mais comum do que parece.",
+          "usaNome": true,
+          "botao": "Continuar"
+        },
+        {
+          "id": "p3",
+          "rotulo": "Pergunta 3",
+          "tipo": "pergunta",
+          "texto": "Qual dessas frases mais soa como sua voz interna?",
+          "opcoes": [
+            { "texto": "\"Não quero criar conflito.\"", "emoji": "🕊️", "arquetipo": "aprovador" },
+            { "texto": "\"Não sou suficiente pra isso.\"", "emoji": "💭", "arquetipo": "sabotador" },
+            { "texto": "\"Não sei bem o que eu sinto sobre isso.\"", "emoji": "🌀", "arquetipo": "ausente" },
+            { "texto": "\"E se der errado?\"", "emoji": "⚠️", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "p4",
+          "rotulo": "Pergunta 4",
+          "tipo": "pergunta",
+          "texto": "Quando recebe um elogio genuíno, você:",
+          "opcoes": [
+            { "texto": "Fica feliz mas logo pensa \"será que foi sincero?\"", "emoji": "🤔", "arquetipo": "aprovador" },
+            { "texto": "Desvia o assunto ou minimiza", "emoji": "🙈", "arquetipo": "sabotador" },
+            { "texto": "Sente pouca coisa, como se não chegasse até você", "emoji": "🫥", "arquetipo": "ausente" },
+            { "texto": "Aceita mas já começa a se cobrar pra manter o padrão", "emoji": "📈", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "p5",
+          "rotulo": "Pergunta 5",
+          "tipo": "pergunta",
+          "texto": "Como é sua relação com mudança?",
+          "opcoes": [
+            { "texto": "Quero, mas sempre depende do que as pessoas próximas vão achar", "emoji": "👥", "arquetipo": "aprovador" },
+            { "texto": "Quero, mas sempre aparece um motivo pra adiar", "emoji": "🚧", "arquetipo": "sabotador" },
+            { "texto": "Às vezes nem percebo que algo precisa mudar", "emoji": "😶", "arquetipo": "ausente" },
+            { "texto": "Só mudo quando tenho controle total do processo", "emoji": "🗺️", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "pausa-2",
+          "rotulo": "Pausa",
+          "tipo": "pausa",
+          "imagem": "bridge-raizes.webp",
+          "texto": "As próximas perguntas tocam num lugar mais fundo. Não existe resposta certa, só a que for mais verdadeira pra você agora.",
+          "usaNome": true,
+          "botao": "Continuar"
+        },
+        {
+          "id": "p6",
+          "rotulo": "Pergunta 6",
+          "tipo": "pergunta",
+          "texto": "No final de um dia comum, você geralmente sente:",
+          "opcoes": [
+            { "texto": "Que fez tudo pelos outros mas esqueceu de você", "emoji": "💔", "arquetipo": "aprovador" },
+            { "texto": "Um vazio difícil de nomear", "emoji": "🕳️", "arquetipo": "sabotador" },
+            { "texto": "Que devia ter feito mais, aproveitado mais", "emoji": "⏰", "arquetipo": "ausente" },
+            { "texto": "Que as coisas não saíram exatamente como planejou", "emoji": "📋", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "p7",
+          "rotulo": "Pergunta 7",
+          "tipo": "pergunta",
+          "texto": "Qual palavra mais descreve como você se sente quando pensa na sua vida hoje?",
+          "ecoaNome": true,
+          "opcoes": [
+            { "texto": "Sem energia", "emoji": "🪫", "arquetipo": "aprovador" },
+            { "texto": "Sem rumo", "emoji": "🧭", "arquetipo": "sabotador" },
+            { "texto": "Sem saída", "emoji": "🔒", "arquetipo": "ausente" },
+            { "texto": "Sem paz", "emoji": "🌪️", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "pausa-3",
+          "rotulo": "Pausa",
+          "tipo": "pausa",
+          "imagem": "bridge-flor.webp",
+          "texto": "Nomear o que você sente já é o primeiro movimento de mudança. Falta só mais uma pergunta.",
+          "usaNome": false,
+          "botao": "Continuar"
+        },
+        {
+          "id": "p8",
+          "rotulo": "Pergunta 8",
+          "tipo": "pergunta",
+          "texto": "Quando imagina ser completamente você, sem filtro, sem audiência: o que aparece?",
+          "ecoaNome": true,
+          "opcoes": [
+            { "texto": "Medo de que as pessoas não gostem", "emoji": "😨", "arquetipo": "aprovador" },
+            { "texto": "Dúvida se essa pessoa existe de verdade", "emoji": "❔", "arquetipo": "sabotador" },
+            { "texto": "Não sei bem quem essa pessoa é", "emoji": "🎭", "arquetipo": "ausente" },
+            { "texto": "Desconforto com não saber o que vai acontecer", "emoji": "🌊", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "virada",
+          "rotulo": "Virada de esperança",
+          "tipo": "pausa",
+          "imagem": "bridge-universo.webp",
+          "texto": "Isso que você acabou de sentir tem nome. E o que tem nome, pode ser entendido. E o que pode ser entendido, pode ser reescrito.",
+          "usaNome": false,
+          "botao": "Ver meu código"
+        },
+        {
+          "id": "calculando",
+          "rotulo": "Calculando",
+          "tipo": "calculando",
+          "sobretitulo": "Processando",
+          "frases": [
+            "Lendo suas respostas...",
+            "Reconhecendo o padrão...",
+            "Encontrando onde ele começou...",
+            "Preparando o seu código..."
+          ],
+          "final": "Encontramos.",
+          "duracaoMs": 3100
+        },
+        {
+          "id": "revelacao",
+          "rotulo": "Revelação parcial",
+          "tipo": "revelacao",
+          "sobretitulo": "Seu código instalado é:",
+          "texto": "Isso explica muita coisa: <span class=\"mark\">o que foi instalado pode ser reescrito</span>.",
+          "botao": "Ver o que isso significa"
+        },
+        {
+          "id": "captura",
+          "rotulo": "Captura de e-mail",
+          "tipo": "captura",
+          "imagem": "envelope.webp",
+          "titulo": "Pra onde te mando os detalhes do seu resultado?",
+          "rotuloCampo": "Seu melhor e-mail",
+          "placeholder": "voce@email.com",
+          "aviso": "Ao continuar, você concorda em receber e-mails sobre este conteúdo. Pode cancelar quando quiser.",
+          "botao": "Ver meu resultado completo"
+        },
+        {
+          "id": "resultado",
+          "rotulo": "Resultado completo",
+          "tipo": "resultado",
+          "sobretitulo": "Seu código instalado é:",
+          "botao": "Quero ver meu material completo"
+        }
+      ],
+      "resultados": {
+        "aprovador": {
+          "label": "O Aprovador",
+          "img": "badge-aprovador.webp",
+          "corpo": [
+            "Você aprendeu cedo que agradar é mais seguro do que ser você.",
+            "Então foi ajustando. A voz, os limites, as escolhas. Sempre com um olho no que os outros precisam de você. Sempre disponível. Sempre \"tá bom.\"",
+            "O resultado? Uma vida construída em torno da aprovação alheia. E um cansaço que nenhum descanso resolve, porque não é cansaço físico. É o cansaço de carregar uma versão sua que não é a sua.",
+            "O material que você vai receber agora vai te mostrar exatamente quando e como esse código foi instalado. E por que não é fraqueza. É neurobiologia."
+          ]
+        },
+        "sabotador": {
+          "label": "O Sabotador",
+          "img": "badge-sabotador.webp",
+          "corpo": [
+            "Você deseja. Planeja. Começa. E na hora H, algo te puxa de volta.",
+            "Não é falta de força de vontade. É um arquivo gravado no seu subconsciente que diz que você não merece chegar lá. Que sucesso é perigoso. Que se você se destacar demais, vai perder algo, ou alguém.",
+            "Então você chega perto. E derruba.",
+            "O material que você vai receber agora vai te mostrar a raiz exata desse código. Onde foi instalado, quem instalou, e por que seu cérebro ainda obedece ele."
+          ]
+        },
+        "ausente": {
+          "label": "O Ausente",
+          "img": "badge-ausente.webp",
+          "corpo": [
+            "Você está presente em tudo. No trabalho, nas relações, nas obrigações.",
+            "Mas ausente de si.",
+            "Você vai, faz, cumpre. Funciona. Mas em algum ponto do caminho perdeu o fio de volta pra você. E agora quando alguém pergunta o que você quer, o que você sente, quem você é, a resposta demora mais do que deveria.",
+            "O material que você vai receber agora vai te mostrar como essa desconexão aconteceu. E que ela não é quem você é. É o que te fizeram ser."
+          ]
+        },
+        "controlador": {
+          "label": "O Controlador",
+          "img": "badge-controlador.webp",
+          "corpo": [
+            "Você aprendeu que o mundo não é seguro quando as coisas saem do seu controle.",
+            "Então você planeja. Prevê. Organiza. Prepara pra todos os cenários possíveis. Às vezes parece que você está sempre a postos, mas nunca age de verdade.",
+            "Por baixo do controle existe um medo muito antigo: o de que se você soltar, tudo desmorona. Que a segurança depende de você segurando tudo.",
+            "O material que você vai receber agora vai te mostrar onde esse código nasceu. E o que acontece quando você descobre que pode soltar."
+          ]
+        }
+      }
+    },
+    {
+      "id": "v2",
+      "nome": "V2",
+      "descricao": "Cópia do V1 criada em 12/09/2026, ainda sem mudança",
+      "status": "rascunho",
+      "peso": 0,
+      "telas": [
+        {
+          "id": "abertura",
+          "rotulo": "Abertura (hook)",
+          "tipo": "abertura",
+          "titulo": "Tem uma parte de você que trava, sempre no <em>mesmo ponto</em>.",
+          "subtitulo": "Não é falta de força de vontade: é um <span class=\"mark\">código específico</span>, instalado em você há muito tempo.",
+          "imagem": "hook.webp",
+          "texto": "Descubra o seu em 8 perguntas e <span class=\"mark\">comece a reescrever o que não te serve mais</span>.",
+          "botao": "Descobrir meu código"
+        },
+        {
+          "id": "nome",
+          "rotulo": "Nome",
+          "tipo": "nome",
+          "titulo": "Antes de começarmos: como posso te chamar?",
+          "placeholder": "Seu primeiro nome",
+          "botao": "Continuar"
+        },
+        {
+          "id": "p1",
+          "rotulo": "Pergunta 1",
+          "tipo": "pergunta",
+          "texto": "Quando alguém te pede algo que você não quer fazer, você normalmente:",
+          "opcoes": [
+            { "texto": "Diz sim pra não decepcionar", "emoji": "🤝", "arquetipo": "aprovador" },
+            { "texto": "Fica procrastinando até a situação se resolver sozinha", "emoji": "⏳", "arquetipo": "sabotador" },
+            { "texto": "Faz no automático, sem nem pensar se quer ou não", "emoji": "🤖", "arquetipo": "ausente" },
+            { "texto": "Analisa muito antes de responder pra não perder o controle", "emoji": "🧠", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "p2",
+          "rotulo": "Pergunta 2",
+          "tipo": "pergunta",
+          "texto": "Quando está muito perto de alcançar algo importante, o que acontece?",
+          "opcoes": [
+            { "texto": "Me preocupo com o que os outros vão achar", "emoji": "👀", "arquetipo": "aprovador" },
+            { "texto": "Começo a me perguntar se mereço realmente", "emoji": "❓", "arquetipo": "sabotador" },
+            { "texto": "Percebo que nem sei mais o que queria de verdade", "emoji": "🌫️", "arquetipo": "ausente" },
+            { "texto": "A ansiedade bate e eu começo a controlar cada detalhe", "emoji": "🎯", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "pausa-1",
+          "rotulo": "Pausa",
+          "tipo": "pausa",
+          "imagem": "bridge-ondas.webp",
+          "texto": "Você não está só nisso. Esse tipo de resposta é mais comum do que parece.",
+          "usaNome": true,
+          "botao": "Continuar"
+        },
+        {
+          "id": "p3",
+          "rotulo": "Pergunta 3",
+          "tipo": "pergunta",
+          "texto": "Qual dessas frases mais soa como sua voz interna?",
+          "opcoes": [
+            { "texto": "\"Não quero criar conflito.\"", "emoji": "🕊️", "arquetipo": "aprovador" },
+            { "texto": "\"Não sou suficiente pra isso.\"", "emoji": "💭", "arquetipo": "sabotador" },
+            { "texto": "\"Não sei bem o que eu sinto sobre isso.\"", "emoji": "🌀", "arquetipo": "ausente" },
+            { "texto": "\"E se der errado?\"", "emoji": "⚠️", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "p4",
+          "rotulo": "Pergunta 4",
+          "tipo": "pergunta",
+          "texto": "Quando recebe um elogio genuíno, você:",
+          "opcoes": [
+            { "texto": "Fica feliz mas logo pensa \"será que foi sincero?\"", "emoji": "🤔", "arquetipo": "aprovador" },
+            { "texto": "Desvia o assunto ou minimiza", "emoji": "🙈", "arquetipo": "sabotador" },
+            { "texto": "Sente pouca coisa, como se não chegasse até você", "emoji": "🫥", "arquetipo": "ausente" },
+            { "texto": "Aceita mas já começa a se cobrar pra manter o padrão", "emoji": "📈", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "p5",
+          "rotulo": "Pergunta 5",
+          "tipo": "pergunta",
+          "texto": "Como é sua relação com mudança?",
+          "opcoes": [
+            { "texto": "Quero, mas sempre depende do que as pessoas próximas vão achar", "emoji": "👥", "arquetipo": "aprovador" },
+            { "texto": "Quero, mas sempre aparece um motivo pra adiar", "emoji": "🚧", "arquetipo": "sabotador" },
+            { "texto": "Às vezes nem percebo que algo precisa mudar", "emoji": "😶", "arquetipo": "ausente" },
+            { "texto": "Só mudo quando tenho controle total do processo", "emoji": "🗺️", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "pausa-2",
+          "rotulo": "Pausa",
+          "tipo": "pausa",
+          "imagem": "bridge-raizes.webp",
+          "texto": "As próximas perguntas tocam num lugar mais fundo. Não existe resposta certa, só a que for mais verdadeira pra você agora.",
+          "usaNome": true,
+          "botao": "Continuar"
+        },
+        {
+          "id": "p6",
+          "rotulo": "Pergunta 6",
+          "tipo": "pergunta",
+          "texto": "No final de um dia comum, você geralmente sente:",
+          "opcoes": [
+            { "texto": "Que fez tudo pelos outros mas esqueceu de você", "emoji": "💔", "arquetipo": "aprovador" },
+            { "texto": "Um vazio difícil de nomear", "emoji": "🕳️", "arquetipo": "sabotador" },
+            { "texto": "Que devia ter feito mais, aproveitado mais", "emoji": "⏰", "arquetipo": "ausente" },
+            { "texto": "Que as coisas não saíram exatamente como planejou", "emoji": "📋", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "p7",
+          "rotulo": "Pergunta 7",
+          "tipo": "pergunta",
+          "texto": "Qual palavra mais descreve como você se sente quando pensa na sua vida hoje?",
+          "ecoaNome": true,
+          "opcoes": [
+            { "texto": "Sem energia", "emoji": "🪫", "arquetipo": "aprovador" },
+            { "texto": "Sem rumo", "emoji": "🧭", "arquetipo": "sabotador" },
+            { "texto": "Sem saída", "emoji": "🔒", "arquetipo": "ausente" },
+            { "texto": "Sem paz", "emoji": "🌪️", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "pausa-3",
+          "rotulo": "Pausa",
+          "tipo": "pausa",
+          "imagem": "bridge-flor.webp",
+          "texto": "Nomear o que você sente já é o primeiro movimento de mudança. Falta só mais uma pergunta.",
+          "usaNome": false,
+          "botao": "Continuar"
+        },
+        {
+          "id": "p8",
+          "rotulo": "Pergunta 8",
+          "tipo": "pergunta",
+          "texto": "Quando imagina ser completamente você, sem filtro, sem audiência: o que aparece?",
+          "ecoaNome": true,
+          "opcoes": [
+            { "texto": "Medo de que as pessoas não gostem", "emoji": "😨", "arquetipo": "aprovador" },
+            { "texto": "Dúvida se essa pessoa existe de verdade", "emoji": "❔", "arquetipo": "sabotador" },
+            { "texto": "Não sei bem quem essa pessoa é", "emoji": "🎭", "arquetipo": "ausente" },
+            { "texto": "Desconforto com não saber o que vai acontecer", "emoji": "🌊", "arquetipo": "controlador" }
+          ]
+        },
+        {
+          "id": "virada",
+          "rotulo": "Virada de esperança",
+          "tipo": "pausa",
+          "imagem": "bridge-universo.webp",
+          "texto": "Isso que você acabou de sentir tem nome. E o que tem nome, pode ser entendido. E o que pode ser entendido, pode ser reescrito.",
+          "usaNome": false,
+          "botao": "Ver meu código"
+        },
+        {
+          "id": "calculando",
+          "rotulo": "Calculando",
+          "tipo": "calculando",
+          "sobretitulo": "Processando",
+          "frases": [
+            "Lendo suas respostas...",
+            "Reconhecendo o padrão...",
+            "Encontrando onde ele começou...",
+            "Preparando o seu código..."
+          ],
+          "final": "Encontramos.",
+          "duracaoMs": 3100
+        },
+        {
+          "id": "revelacao",
+          "rotulo": "Revelação parcial",
+          "tipo": "revelacao",
+          "sobretitulo": "Seu código instalado é:",
+          "texto": "Isso explica muita coisa: <span class=\"mark\">o que foi instalado pode ser reescrito</span>.",
+          "botao": "Ver o que isso significa"
+        },
+        {
+          "id": "captura",
+          "rotulo": "Captura de e-mail",
+          "tipo": "captura",
+          "imagem": "envelope.webp",
+          "titulo": "Pra onde te mando os detalhes do seu resultado?",
+          "rotuloCampo": "Seu melhor e-mail",
+          "placeholder": "voce@email.com",
+          "aviso": "Ao continuar, você concorda em receber e-mails sobre este conteúdo. Pode cancelar quando quiser.",
+          "botao": "Ver meu resultado completo"
+        },
+        {
+          "id": "resultado",
+          "rotulo": "Resultado completo",
+          "tipo": "resultado",
+          "sobretitulo": "Seu código instalado é:",
+          "botao": "Quero ver meu material completo"
+        }
+      ],
+      "resultados": {
+        "aprovador": {
+          "label": "O Aprovador",
+          "img": "badge-aprovador.webp",
+          "corpo": [
+            "Você aprendeu cedo que agradar é mais seguro do que ser você.",
+            "Então foi ajustando. A voz, os limites, as escolhas. Sempre com um olho no que os outros precisam de você. Sempre disponível. Sempre \"tá bom.\"",
+            "O resultado? Uma vida construída em torno da aprovação alheia. E um cansaço que nenhum descanso resolve, porque não é cansaço físico. É o cansaço de carregar uma versão sua que não é a sua.",
+            "O material que você vai receber agora vai te mostrar exatamente quando e como esse código foi instalado. E por que não é fraqueza. É neurobiologia."
+          ]
+        },
+        "sabotador": {
+          "label": "O Sabotador",
+          "img": "badge-sabotador.webp",
+          "corpo": [
+            "Você deseja. Planeja. Começa. E na hora H, algo te puxa de volta.",
+            "Não é falta de força de vontade. É um arquivo gravado no seu subconsciente que diz que você não merece chegar lá. Que sucesso é perigoso. Que se você se destacar demais, vai perder algo, ou alguém.",
+            "Então você chega perto. E derruba.",
+            "O material que você vai receber agora vai te mostrar a raiz exata desse código. Onde foi instalado, quem instalou, e por que seu cérebro ainda obedece ele."
+          ]
+        },
+        "ausente": {
+          "label": "O Ausente",
+          "img": "badge-ausente.webp",
+          "corpo": [
+            "Você está presente em tudo. No trabalho, nas relações, nas obrigações.",
+            "Mas ausente de si.",
+            "Você vai, faz, cumpre. Funciona. Mas em algum ponto do caminho perdeu o fio de volta pra você. E agora quando alguém pergunta o que você quer, o que você sente, quem você é, a resposta demora mais do que deveria.",
+            "O material que você vai receber agora vai te mostrar como essa desconexão aconteceu. E que ela não é quem você é. É o que te fizeram ser."
+          ]
+        },
+        "controlador": {
+          "label": "O Controlador",
+          "img": "badge-controlador.webp",
+          "corpo": [
+            "Você aprendeu que o mundo não é seguro quando as coisas saem do seu controle.",
+            "Então você planeja. Prevê. Organiza. Prepara pra todos os cenários possíveis. Às vezes parece que você está sempre a postos, mas nunca age de verdade.",
+            "Por baixo do controle existe um medo muito antigo: o de que se você soltar, tudo desmorona. Que a segurança depende de você segurando tudo.",
+            "O material que você vai receber agora vai te mostrar onde esse código nasceu. E o que acontece quando você descobre que pode soltar."
+          ]
+        }
+      }
+    }
+  ]
+}

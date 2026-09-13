@@ -41,6 +41,12 @@ export default async function handler(req, res) {
   };
 
   const result = VALID_RESULTS.includes(body.result) ? body.result : null;
+  // Variante do quiz que a pessoa fez (quiz/variantes.json), desde 12/09/2026.
+  // Só aceita o formato de id, pra lixo não virar categoria no painel.
+  const quizVariant =
+    typeof body.quiz_variant === 'string' && /^[a-z0-9-]{1,40}$/.test(body.quiz_variant)
+      ? body.quiz_variant
+      : null;
 
   const event = {
     event_type: body.event_type || 'isca',
@@ -51,6 +57,7 @@ export default async function handler(req, res) {
     utm_campaign: body.utm_campaign || null,
     utm_content: body.utm_content || 'direto',
     quiz_result: result,
+    quiz_variant: quizVariant,
   };
 
   // ---------- 1. SUPABASE (crítico) ----------
@@ -142,18 +149,35 @@ async function saveToSupabase(contact, event) {
   const contactId = rows[0].id;
 
   // 1c. Insert lead_event
-  const eventResp = await fetch(`${url}/rest/v1/lead_events`, {
-    method: 'POST',
-    headers: { ...headers, Prefer: 'return=minimal' },
-    body: JSON.stringify({ contact_id: contactId, ...event }),
-  });
+  let err = await insertLeadEvent(url, headers, { contact_id: contactId, ...event });
 
-  if (!eventResp.ok) {
-    const err = await eventResp.json().catch(() => ({}));
-    throw new Error(`lead_events insert ${eventResp.status}: ${JSON.stringify(err)}`);
+  // A coluna quiz_variant nasce na migration 0004, aplicada à mão no painel do
+  // Supabase. Enquanto ela não existir, o PostgREST recusa o insert INTEIRO
+  // com PGRST204 (medido em 12/09/2026), e sem esta volta cada lead do quiz
+  // viraria 500. Grava sem a coluna e segue: perder a variante de um lead é
+  // barato, perder o lead não. Pode sair depois que a migration estiver no ar.
+  if (err && err.body && err.body.code === 'PGRST204' && String(err.body.message).includes('quiz_variant')) {
+    console.warn('lead_events sem a coluna quiz_variant (migration 0004 pendente): gravando sem ela.');
+    const { quiz_variant, ...semVariante } = event;
+    err = await insertLeadEvent(url, headers, { contact_id: contactId, ...semVariante });
+  }
+
+  if (err) {
+    throw new Error(`lead_events insert ${err.status}: ${JSON.stringify(err.body)}`);
   }
 
   return contactId;
+}
+
+// Devolve null se gravou, ou { status, body } do erro.
+async function insertLeadEvent(url, headers, row) {
+  const resp = await fetch(`${url}/rest/v1/lead_events`, {
+    method: 'POST',
+    headers: { ...headers, Prefer: 'return=minimal' },
+    body: JSON.stringify(row),
+  });
+  if (resp.ok) return null;
+  return { status: resp.status, body: await resp.json().catch(() => ({})) };
 }
 
 // --- Brevo (best-effort) ---

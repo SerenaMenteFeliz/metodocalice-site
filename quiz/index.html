@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Jost:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<!-- As telas vêm deste arquivo (ver o script no fim): pré-carregar em paralelo com o resto do <head> -->
+<link rel="preload" href="/quiz/variantes.json" as="fetch" crossorigin="anonymous" />
 <style>
   /* Tokens reais do tema "Santuário + Véu" (Método Cálice) — ver
      .claude/skills/quiz-funnel-designer/references/visual-identity-serena.md */
@@ -335,7 +337,7 @@
 </head>
 <body>
 <div id="app">
-  <div class="progress-shell">
+  <div class="progress-shell is-hidden">
     <div class="progress-inner">
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
     </div>
@@ -348,141 +350,19 @@
 (function () {
   'use strict';
 
-  // ---------- Dados: as 8 perguntas (copy da Ge, ordem de opção fixa: Aprovador · Sabotador · Ausente · Controlador) ----------
-  // Emoji escolhido por CONTEÚDO de cada opção (não por posição/arquétipo) — ver
-  // convenção "emoji por opção" em references/visual-identity-serena.md
-  var QUESTIONS = [
-    {
-      texto: 'Quando alguém te pede algo que você não quer fazer, você normalmente:',
-      opcoes: [
-        { texto: 'Diz sim pra não decepcionar', emoji: '🤝' },
-        { texto: 'Fica procrastinando até a situação se resolver sozinha', emoji: '⏳' },
-        { texto: 'Faz no automático, sem nem pensar se quer ou não', emoji: '🤖' },
-        { texto: 'Analisa muito antes de responder pra não perder o controle', emoji: '🧠' }
-      ]
-    },
-    {
-      texto: 'Quando está muito perto de alcançar algo importante, o que acontece?',
-      opcoes: [
-        { texto: 'Me preocupo com o que os outros vão achar', emoji: '👀' },
-        { texto: 'Começo a me perguntar se mereço realmente', emoji: '❓' },
-        { texto: 'Percebo que nem sei mais o que queria de verdade', emoji: '🌫️' },
-        { texto: 'A ansiedade bate e eu começo a controlar cada detalhe', emoji: '🎯' }
-      ]
-    },
-    {
-      texto: 'Qual dessas frases mais soa como sua voz interna?',
-      opcoes: [
-        { texto: '"Não quero criar conflito."', emoji: '🕊️' },
-        { texto: '"Não sou suficiente pra isso."', emoji: '💭' },
-        { texto: '"Não sei bem o que eu sinto sobre isso."', emoji: '🌀' },
-        { texto: '"E se der errado?"', emoji: '⚠️' }
-      ]
-    },
-    {
-      texto: 'Quando recebe um elogio genuíno, você:',
-      opcoes: [
-        { texto: 'Fica feliz mas logo pensa "será que foi sincero?"', emoji: '🤔' },
-        { texto: 'Desvia o assunto ou minimiza', emoji: '🙈' },
-        { texto: 'Sente pouca coisa, como se não chegasse até você', emoji: '🫥' },
-        { texto: 'Aceita mas já começa a se cobrar pra manter o padrão', emoji: '📈' }
-      ]
-    },
-    {
-      texto: 'Como é sua relação com mudança?',
-      opcoes: [
-        { texto: 'Quero, mas sempre depende do que as pessoas próximas vão achar', emoji: '👥' },
-        { texto: 'Quero, mas sempre aparece um motivo pra adiar', emoji: '🚧' },
-        { texto: 'Às vezes nem percebo que algo precisa mudar', emoji: '😶' },
-        { texto: 'Só mudo quando tenho controle total do processo', emoji: '🗺️' }
-      ]
-    },
-    {
-      texto: 'No final de um dia comum, você geralmente sente:',
-      opcoes: [
-        { texto: 'Que fez tudo pelos outros mas esqueceu de você', emoji: '💔' },
-        { texto: 'Um vazio difícil de nomear', emoji: '🕳️' },
-        { texto: 'Que devia ter feito mais, aproveitado mais', emoji: '⏰' },
-        { texto: 'Que as coisas não saíram exatamente como planejou', emoji: '📋' }
-      ]
-    },
-    {
-      texto: 'Qual palavra mais descreve como você se sente quando pensa na sua vida hoje?',
-      opcoes: [
-        { texto: 'Sem energia', emoji: '🪫' },
-        { texto: 'Sem rumo', emoji: '🧭' },
-        { texto: 'Sem saída', emoji: '🔒' },
-        { texto: 'Sem paz', emoji: '🌪️' }
-      ]
-    },
-    {
-      texto: 'Quando imagina ser completamente você, sem filtro, sem audiência: o que aparece?',
-      opcoes: [
-        { texto: 'Medo de que as pessoas não gostem', emoji: '😨' },
-        { texto: 'Dúvida se essa pessoa existe de verdade', emoji: '❔' },
-        { texto: 'Não sei bem quem essa pessoa é', emoji: '🎭' },
-        { texto: 'Desconforto com não saber o que vai acontecer', emoji: '🌊' }
-      ]
-    }
-  ];
+  // ---------- Onde mora o conteúdo (12/09/2026) ----------
+  // As telas não moram mais aqui. Cada VARIANTE do quiz (V1, V2...) é um bloco
+  // de dados em quiz/variantes.json, e este arquivo só desenha a variante
+  // sorteada. O painel do zuppas-life lê o MESMO JSON pra montar a lista de
+  // etapas e o preview, então editar o JSON atualiza o quiz e o painel juntos:
+  // até esta data o painel tinha uma cópia à mão da ordem das telas, que
+  // mentia em silêncio no dia em que uma tela entrasse ou saísse. Formato e
+  // regras de edição no topo do próprio JSON ("_leia_antes").
+  var URL_VARIANTES = '/quiz/variantes.json';
+  var IMG = '../assets/img/';
+  var CHAVE_VARIANTE = 'quiz_variante';
+  var EM_PREVIEW = typeof IS_PREVIEW !== 'undefined' && IS_PREVIEW; // definido em assets/posthog-init.js
 
-  var ARCHETYPES = ['aprovador', 'sabotador', 'ausente', 'controlador'];
-
-  // ---------- Dados: os 4 resultados (copy da Ge; ajuste 23/07: rótulos no masculino
-  // genérico = nome do código, não da pessoa; corpo sem marcação de gênero) ----------
-  var RESULTS = {
-    aprovador: {
-      label: 'O Aprovador',
-      img: 'badge-aprovador.webp',
-      corpo: [
-        'Você aprendeu cedo que agradar é mais seguro do que ser você.',
-        'Então foi ajustando. A voz, os limites, as escolhas. Sempre com um olho no que os outros precisam de você. Sempre disponível. Sempre "tá bom."',
-        'O resultado? Uma vida construída em torno da aprovação alheia. E um cansaço que nenhum descanso resolve, porque não é cansaço físico. É o cansaço de carregar uma versão sua que não é a sua.',
-        'O material que você vai receber agora vai te mostrar exatamente quando e como esse código foi instalado. E por que não é fraqueza. É neurobiologia.'
-      ]
-    },
-    sabotador: {
-      label: 'O Sabotador',
-      img: 'badge-sabotador.webp',
-      corpo: [
-        'Você deseja. Planeja. Começa. E na hora H, algo te puxa de volta.',
-        'Não é falta de força de vontade. É um arquivo gravado no seu subconsciente que diz que você não merece chegar lá. Que sucesso é perigoso. Que se você se destacar demais, vai perder algo, ou alguém.',
-        'Então você chega perto. E derruba.',
-        'O material que você vai receber agora vai te mostrar a raiz exata desse código. Onde foi instalado, quem instalou, e por que seu cérebro ainda obedece ele.'
-      ]
-    },
-    ausente: {
-      label: 'O Ausente',
-      img: 'badge-ausente.webp',
-      corpo: [
-        'Você está presente em tudo. No trabalho, nas relações, nas obrigações.',
-        'Mas ausente de si.',
-        'Você vai, faz, cumpre. Funciona. Mas em algum ponto do caminho perdeu o fio de volta pra você. E agora quando alguém pergunta o que você quer, o que você sente, quem você é, a resposta demora mais do que deveria.',
-        'O material que você vai receber agora vai te mostrar como essa desconexão aconteceu. E que ela não é quem você é. É o que te fizeram ser.'
-      ]
-    },
-    controlador: {
-      label: 'O Controlador',
-      img: 'badge-controlador.webp',
-      corpo: [
-        'Você aprendeu que o mundo não é seguro quando as coisas saem do seu controle.',
-        'Então você planeja. Prevê. Organiza. Prepara pra todos os cenários possíveis. Às vezes parece que você está sempre a postos, mas nunca age de verdade.',
-        'Por baixo do controle existe um medo muito antigo: o de que se você soltar, tudo desmorona. Que a segurança depende de você segurando tudo.',
-        'O material que você vai receber agora vai te mostrar onde esse código nasceu. E o que acontece quando você descobre que pode soltar.'
-      ]
-    }
-  };
-
-  // ---------- UTM (best-effort, captado uma vez na abertura) ----------
-  (function captureUTM() {
-    var q = new URLSearchParams(window.location.search);
-    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].forEach(function (k) {
-      var v = q.get(k);
-      if (v) localStorage.setItem('quiz_' + k, v);
-    });
-  })();
-
-  // ---------- Monta o DOM dos steps ----------
   var stepsEl = document.getElementById('steps');
 
   function el(html) {
@@ -491,431 +371,506 @@
     return d.firstElementChild;
   }
 
-  // Step 0 — hook
-  stepsEl.appendChild(el(
-    '<div data-step data-kind="content">' +
-      '<div class="wrap center">' +
-        '<h1>Tem uma parte de você que trava, sempre no <em>mesmo ponto</em>.</h1>' +
-        '<p class="lead lead-strong">Não é falta de força de vontade: é um <span class="mark">código específico</span>, instalado em você há muito tempo.</p>' +
-        '<div class="media-frame"><img src="../assets/img/hook.webp" alt="" /></div>' +
-        '<p class="lead">Descubra o seu em 8 perguntas e <span class="mark">comece a reescrever o que não te serve mais</span>.</p>' +
-        '<button type="button" class="btn btn-narrow btn-pulse" id="btnStart">Descobrir meu código</button>' +
-      '</div>' +
-    '</div>'
-  ));
-
-  // Step — captura antecipada do nome (logo na abertura, sem e-mail ainda — usado
-  // em todo o resto do funil: terminal de loading, revelação, resultado, material)
-  stepsEl.appendChild(el(
-    '<div data-step data-kind="content">' +
-      '<div class="wrap">' +
-        '<h2 class="cap-title">Antes de começarmos: como posso te chamar?</h2>' +
-        '<div class="field">' +
-          '<input id="capNameEarly" class="input" type="text" placeholder="Seu primeiro nome" autocomplete="given-name" />' +
-        '</div>' +
-        '<button type="button" class="btn" id="btnNameContinue">Continuar</button>' +
-      '</div>' +
-    '</div>'
-  ));
-
-  // Pausas honestas entre blocos de perguntas — validam o esforço de responder,
-  // não o conteúdo específico da resposta (pontuação só fecha na 8ª pergunta,
-  // reagir a uma resposta isolada seria personalização fabricada). Ver
-  // references/visual-identity-serena.md. Imagem sugerida por bridge (dualidade
-  // código/natureza — trocar o ícone de emoji pela arte real quando existir):
-  // 1 → ondas concêntricas na água, luz suave · 4 → raízes se aprofundando /
-  // caminho escurecendo · 6 → um ponto de luz se abrindo num campo escuro ·
-  // pivot → cosmos/galáxia se reorganizando.
-  var BRIDGES = {
-    1: { img: 'bridge-ondas.webp', lead: 'Você', rest: ' não está só nisso. Esse tipo de resposta é mais comum do que parece.' },
-    4: { img: 'bridge-raizes.webp', lead: 'As', rest: ' próximas perguntas tocam num lugar mais fundo. Não existe resposta certa, só a que for mais verdadeira pra você agora.' },
-    6: { img: 'bridge-flor.webp', lead: 'Nomear', rest: ' o que você sente já é o primeiro movimento de mudança. Falta só mais uma pergunta.' },
-    pivot: { img: 'bridge-universo.webp', lead: 'Isso', rest: ' que você acabou de sentir tem nome. E o que tem nome, pode ser entendido. E o que pode ser entendido, pode ser reescrito.' }
-  };
-
-  function bridgeCard(key, ctaLabel) {
-    return '<div data-step data-kind="content" data-bridge="' + key + '">' +
-      '<div class="wrap center">' +
-        '<div class="bridge-card">' +
-          '<div class="media-frame bridge-img"><img src="../assets/img/' + BRIDGES[key].img + '" alt="" /></div>' +
-          '<p class="bridge-quote" data-bridge-quote>—</p>' +
-        '</div>' +
-        '<button type="button" class="btn btn-bridge btn-narrow">' + ctaLabel + '</button>' +
-      '</div>' +
-    '</div>';
+  // Campo de texto puro do JSON. Os que aceitam HTML estão listados no
+  // "_leia_antes" e entram sem passar por aqui.
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // Steps 1-8 — perguntas
-  QUESTIONS.forEach(function (q, qi) {
-    var opts = q.opcoes.map(function (o, oi) {
-      return '<button type="button" class="option" data-archetype="' + ARCHETYPES[oi] + '">' +
-        '<span class="emoji">' + o.emoji + '</span><span>' + o.texto + '</span>' +
-        '</button>';
-    }).join('');
-    stepsEl.appendChild(el(
-      '<div data-step data-kind="quiz" data-qindex="' + qi + '">' +
+  // Nome como prefixo natural ("Bianca, você não está só nisso."), com a
+  // primeira letra do texto em minúscula no encaixe. Sem nome, o texto puro.
+  // Mesmo padrão de sempre em captura, revelação, pausas e perguntas 7 e 8.
+  function comNome(texto) {
+    var nome = localStorage.getItem('quiz_name') || '';
+    return nome ? nome + ', ' + texto.charAt(0).toLowerCase() + texto.slice(1) : texto;
+  }
+
+  // ---------- Qual variante esta pessoa vê ----------
+  // 1. ?v=<id> abre qualquer variante, inclusive rascunho (preview do painel,
+  //    teste da família). Não grava: a URL já carrega a escolha no refresh.
+  // 2. No preview sem ?v=, a primeira da lista.
+  // 3. Quem já sorteou antes volta pra mesma, enquanto ela seguir ativa. Sem
+  //    isso, quem fecha e volta no dia seguinte veria as duas e sujaria a
+  //    comparação.
+  // 4. Senão, sorteio pelo peso entre as ativas, guardado no navegador.
+  // Sorteio local e instantâneo de propósito, e não feature flag da PostHog:
+  // a flag chega pela rede depois da página, e a espera cairia na abertura,
+  // que é a tela que mais perde gente.
+  function escolherVariante(lista) {
+    var pedida = new URLSearchParams(window.location.search).get('v');
+    var i;
+    for (i = 0; i < lista.length; i++) if (lista[i].id === pedida) return lista[i];
+    if (EM_PREVIEW) return lista[0];
+
+    var ativas = lista.filter(function (v) { return v.status === 'ativa' && v.peso > 0; });
+    if (!ativas.length) return lista[0];
+
+    var salva = localStorage.getItem(CHAVE_VARIANTE);
+    for (i = 0; i < ativas.length; i++) if (ativas[i].id === salva) return ativas[i];
+
+    var total = ativas.reduce(function (soma, v) { return soma + v.peso; }, 0);
+    var sorteio = Math.random() * total;
+    var escolhida = ativas[ativas.length - 1];
+    for (i = 0; i < ativas.length; i++) {
+      sorteio -= ativas[i].peso;
+      if (sorteio < 0) { escolhida = ativas[i]; break; }
+    }
+    localStorage.setItem(CHAVE_VARIANTE, escolhida.id);
+    return escolhida;
+  }
+
+  // ---------- Como cada tipo de tela vira HTML ----------
+  var MONTAR = {
+    abertura: function (t) {
+      return '<div data-step>' +
+        '<div class="wrap center">' +
+          '<h1>' + t.titulo + '</h1>' +
+          '<p class="lead lead-strong">' + t.subtitulo + '</p>' +
+          '<div class="media-frame"><img src="' + IMG + esc(t.imagem) + '" alt="" /></div>' +
+          '<p class="lead">' + t.texto + '</p>' +
+          '<button type="button" class="btn btn-narrow btn-pulse" id="btnStart">' + esc(t.botao) + '</button>' +
+        '</div>' +
+      '</div>';
+    },
+    // Captura antecipada do nome (sem e-mail ainda), usado no resto do funil inteiro
+    nome: function (t) {
+      return '<div data-step>' +
         '<div class="wrap">' +
-          '<h2 class="q-title">' + q.texto + '</h2>' +
+          '<h2 class="cap-title">' + esc(t.titulo) + '</h2>' +
+          '<div class="field">' +
+            '<input id="capNameEarly" class="input" type="text" placeholder="' + esc(t.placeholder) + '" autocomplete="given-name" />' +
+          '</div>' +
+          '<button type="button" class="btn" id="btnNameContinue">' + esc(t.botao) + '</button>' +
+        '</div>' +
+      '</div>';
+    },
+    pergunta: function (t) {
+      var opts = t.opcoes.map(function (o) {
+        return '<button type="button" class="option" data-archetype="' + esc(o.arquetipo) + '">' +
+          '<span class="emoji">' + esc(o.emoji) + '</span><span>' + esc(o.texto) + '</span>' +
+          '</button>';
+      }).join('');
+      return '<div data-step>' +
+        '<div class="wrap">' +
+          '<h2 class="q-title">' + esc(t.texto) + '</h2>' +
           '<div>' + opts + '</div>' +
         '</div>' +
-      '</div>'
-    ));
-    if (BRIDGES[qi]) {
-      stepsEl.appendChild(el(bridgeCard(qi, 'Continuar')));
-    }
-  });
-
-  // Step — virada de esperança (pós-diagnóstico, pré-cálculo): fecha a descida
-  // emocional das 8 perguntas com agência, não só mais peso
-  stepsEl.appendChild(el(bridgeCard('pivot', 'Ver meu código')));
-
-  // Step — loading (anel de progresso circular com % contando 0→100 no centro +
-  // frases rotativas; sem exibir o "código"/resultado nesta tela — só no reveal seguinte)
-  stepsEl.appendChild(el(
-    '<div data-step data-kind="loading">' +
-      '<div class="wrap center">' +
-        '<p class="eyebrow">Processando</p>' +
-        '<div class="loading-ring-wrap">' +
-          '<svg class="loading-ring" viewBox="0 0 120 120">' +
-            '<defs>' +
-              '<linearGradient id="loadingRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
-                '<stop offset="0%" stop-color="var(--gold)" />' +
-                '<stop offset="100%" stop-color="var(--lavender)" />' +
-              '</linearGradient>' +
-            '</defs>' +
-            '<circle class="loading-ring-track" cx="60" cy="60" r="54" />' +
-            '<circle class="loading-ring-fill" id="loadingRingFill" cx="60" cy="60" r="54" />' +
-          '</svg>' +
-          '<span class="loading-percent" id="loadingPercent">0%</span>' +
-        '</div>' +
-        '<p class="loading-phrase" id="loadingPhrase">Lendo suas respostas...</p>' +
-      '</div>' +
-    '</div>'
-  ));
-
-  // Step — revelação parcial
-  stepsEl.appendChild(el(
-    '<div data-step data-kind="content">' +
-      '<div class="wrap center">' +
-        '<p class="eyebrow" id="revealEyebrow">Seu código instalado é:</p>' +
-        '<div class="media-frame result-orb"><img id="revealOrbImg" src="" alt="" /></div>' +
-        '<h1 id="revealLabel">—</h1>' +
-        '<p class="lead">Isso explica muita coisa: <span class="mark">o que foi instalado pode ser reescrito</span>.</p>' +
-        '<button type="button" class="btn" id="btnToCapture">Ver o que isso significa</button>' +
-      '</div>' +
-    '</div>'
-  ));
-
-  // Step — captura (e-mail; nome já foi coletado na abertura)
-  stepsEl.appendChild(el(
-    '<div data-step data-kind="capture">' +
-      '<div class="wrap">' +
-        '<div class="media-frame img-envelope"><img src="../assets/img/envelope.webp" alt="" /></div>' +
-        '<h2 id="captureHeading" class="cap-title">Pra onde te mando os detalhes do seu resultado?</h2>' +
-        '<form id="captureForm">' +
-          '<div class="field">' +
-            '<label class="label" for="capEmail">Seu melhor e-mail</label>' +
-            '<input id="capEmail" class="input" type="email" data-funnel-field="email" placeholder="voce@email.com" required autocomplete="email" inputmode="email" />' +
-            '<div data-email-msg></div>' +
-            '<div data-email-suggestion></div>' +
+      '</div>';
+    },
+    // Pausas honestas entre blocos de perguntas e virada de esperança: validam
+    // o esforço de responder, não o conteúdo da resposta (a pontuação só fecha
+    // na última pergunta; reagir a uma resposta isolada seria personalização
+    // fabricada). Ver references/visual-identity-serena.md.
+    pausa: function (t) {
+      return '<div data-step data-bridge="' + esc(t.id) + '">' +
+        '<div class="wrap center">' +
+          '<div class="bridge-card">' +
+            '<div class="media-frame bridge-img"><img src="' + IMG + esc(t.imagem) + '" alt="" /></div>' +
+            '<p class="bridge-quote" data-bridge-quote>' + esc(t.texto) + '</p>' +
           '</div>' +
-          '<p class="disclaimer">Ao continuar, você concorda em receber e-mails sobre este conteúdo. Pode cancelar quando quiser.</p>' +
-          '<button type="submit" class="btn" id="btnCapture">Ver meu resultado completo</button>' +
-        '</form>' +
-      '</div>' +
-    '</div>'
-  ));
-
-  // Step — resultado completo
-  stepsEl.appendChild(el(
-    '<div data-step data-kind="content">' +
-      '<div class="wrap">' +
-        '<div class="media-frame img-badge"><img id="resultBadgeImg" src="" alt="" /></div>' +
-        '<div class="result-card">' +
-          '<span class="result-tag" id="resultTag">—</span>' +
-          '<h1 class="result-archetype" id="resultArchetype">—</h1>' +
-          '<div class="result-body" id="resultBody"></div>' +
+          '<button type="button" class="btn btn-bridge btn-narrow">' + esc(t.botao) + '</button>' +
         '</div>' +
-        '<a class="btn" id="btnMaterial" href="#">Quero ver meu material completo</a>' +
-      '</div>' +
-    '</div>'
-  ));
-
-  // ---------- Runtime do funil (ver .claude/skills/quiz-funnel-designer/SKILL.md) ----------
-  var steps = Array.prototype.slice.call(document.querySelectorAll('[data-step]'));
-  var idx = 0;
-
-  // ?preview_step=N (junto com ?preview=1, ver assets/posthog-init.js) pula
-  // direto pro step N no load — usado pelo /painel do zuppas-life pra
-  // embutir a tela ao vivo de uma etapa específica num iframe, em vez de
-  // forçar quem está olhando o funil a responder o quiz inteiro de novo.
-  var isPreviewJump = false;
-  (function jumpToPreviewStep() {
-    var raw = new URLSearchParams(window.location.search).get('preview_step');
-    if (raw === null) return;
-    var n = parseInt(raw, 10);
-    if (isNaN(n) || n < 0 || n >= steps.length) return;
-    idx = n;
-    isPreviewJump = true;
-  })();
-
-  // Um evento genérico com propriedades (em vez de um nome por step) — dá pra
-  // fazer funil/breakdown na PostHog sem precisar mapear um evento por tela.
-  function trackStepView(stepEl) {
-    phTrack('quiz_step_viewed', {
-      step_index: idx,
-      step_kind: stepEl.dataset.kind || null,
-      question_index: stepEl.dataset.qindex != null ? Number(stepEl.dataset.qindex) + 1 : null,
-      bridge: stepEl.dataset.bridge || null
-    });
-  }
-
-  function updateProgress() {
-    // Barra de progresso reflete só as 8 perguntas, não o funil inteiro (hook/loading/captura/resultado não contam)
-    var current = steps[idx];
-    var fill = document.getElementById('progressFill');
-    var shell = document.querySelector('.progress-shell');
-    shell.classList.toggle('is-hidden', idx === 0 || idx === steps.length - 1 || !!current.dataset.bridge || current.dataset.kind === 'loading');
-    if (current.dataset.kind === 'quiz') {
-      var qi = Number(current.dataset.qindex);
-      fill.style.width = (((qi + 1) / QUESTIONS.length) * 100) + '%';
+      '</div>';
+    },
+    // Anel de progresso circular com % contando 0→100 no centro + frases
+    // rotativas; o resultado só aparece na revelação seguinte
+    calculando: function (t) {
+      return '<div data-step>' +
+        '<div class="wrap center">' +
+          '<p class="eyebrow">' + esc(t.sobretitulo) + '</p>' +
+          '<div class="loading-ring-wrap">' +
+            '<svg class="loading-ring" viewBox="0 0 120 120">' +
+              '<defs>' +
+                '<linearGradient id="loadingRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
+                  '<stop offset="0%" stop-color="var(--gold)" />' +
+                  '<stop offset="100%" stop-color="var(--lavender)" />' +
+                '</linearGradient>' +
+              '</defs>' +
+              '<circle class="loading-ring-track" cx="60" cy="60" r="54" />' +
+              '<circle class="loading-ring-fill" id="loadingRingFill" cx="60" cy="60" r="54" />' +
+            '</svg>' +
+            '<span class="loading-percent" id="loadingPercent">0%</span>' +
+          '</div>' +
+          '<p class="loading-phrase" id="loadingPhrase">' + esc(t.frases[0]) + '</p>' +
+        '</div>' +
+      '</div>';
+    },
+    revelacao: function (t) {
+      return '<div data-step>' +
+        '<div class="wrap center">' +
+          '<p class="eyebrow" id="revealEyebrow">' + esc(t.sobretitulo) + '</p>' +
+          '<div class="media-frame result-orb"><img id="revealOrbImg" src="" alt="" /></div>' +
+          '<h1 id="revealLabel"></h1>' +
+          '<p class="lead">' + t.texto + '</p>' +
+          '<button type="button" class="btn" id="btnToCapture">' + esc(t.botao) + '</button>' +
+        '</div>' +
+      '</div>';
+    },
+    // E-mail; o nome já foi coletado na abertura
+    captura: function (t) {
+      return '<div data-step>' +
+        '<div class="wrap">' +
+          '<div class="media-frame img-envelope"><img src="' + IMG + esc(t.imagem) + '" alt="" /></div>' +
+          '<h2 id="captureHeading" class="cap-title">' + esc(t.titulo) + '</h2>' +
+          '<form id="captureForm">' +
+            '<div class="field">' +
+              '<label class="label" for="capEmail">' + esc(t.rotuloCampo) + '</label>' +
+              '<input id="capEmail" class="input" type="email" data-funnel-field="email" placeholder="' + esc(t.placeholder) + '" required autocomplete="email" inputmode="email" />' +
+              '<div data-email-msg></div>' +
+              '<div data-email-suggestion></div>' +
+            '</div>' +
+            '<p class="disclaimer">' + esc(t.aviso) + '</p>' +
+            '<button type="submit" class="btn" id="btnCapture">' + esc(t.botao) + '</button>' +
+          '</form>' +
+        '</div>' +
+      '</div>';
+    },
+    resultado: function (t) {
+      return '<div data-step>' +
+        '<div class="wrap">' +
+          '<div class="media-frame img-badge"><img id="resultBadgeImg" src="" alt="" /></div>' +
+          '<div class="result-card">' +
+            '<span class="result-tag" id="resultTag">' + esc(t.sobretitulo) + '</span>' +
+            '<h1 class="result-archetype" id="resultArchetype"></h1>' +
+            '<div class="result-body" id="resultBody"></div>' +
+          '</div>' +
+          '<a class="btn" id="btnMaterial" href="#">' + esc(t.botao) + '</a>' +
+        '</div>' +
+      '</div>';
     }
-  }
-
-  function render() {
-    steps.forEach(function (s, i) {
-      s.classList.toggle('is-active', i === idx);
-      s.classList.toggle('is-enter', i === idx);
-    });
-    updateProgress();
-    window.scrollTo(0, 0);
-    trackStepView(steps[idx]);
-  }
-
-  // Transição entre steps: fade-out do step atual, só então troca e faz
-  // fade-in do próximo — sem isso a troca de `display:none` corta seco,
-  // não dá pra animar uma propriedade que já sumiu.
-  var TRANSITION_MS = 160;
-  function goToStep(newIdx) {
-    var current = steps[idx];
-    current.classList.remove('is-enter');
-    current.classList.add('is-leaving');
-    setTimeout(function () {
-      current.classList.remove('is-active', 'is-leaving');
-      idx = newIdx;
-      var next = steps[idx];
-      next.classList.add('is-active', 'is-enter');
-      updateProgress();
-      window.scrollTo(0, 0);
-      trackStepView(next);
-      afterRender();
-    }, TRANSITION_MS);
-  }
-
-  window.__funnel = {
-    get currentStep() { return idx + 1; },
-    get totalSteps() { return steps.length; },
-    continue: function () { if (idx < steps.length - 1) goToStep(idx + 1); },
-    back: function () { if (idx > 0) goToStep(idx - 1); }
   };
 
-  // Preview ao vivo (ver jumpToPreviewStep acima): revelação e resultado só
-  // ganham conteúdo através do cálculo no fim do quiz de verdade (o ciclo
-  // normal é runLoading -> computeResult). Popular as duas com um resultado
-  // (primeiro arquétipo — não há resposta salva pra desempatar de verdade)
-  // evita que apareçam com "—" vazio quando abertas direto via preview_step.
-  // Bridge já tem fallback sem nome no próprio helper (withName). A etapa
-  // de loading fica com o markup estático — não roda a animação/avanço
-  // automático, que levaria pra outro step sozinho.
-  if (isPreviewJump) {
-    var previewResult = computeResult();
-    populateReveal(previewResult);
-    populateResult(previewResult);
-    var previewStepEl = steps[idx];
-    if (previewStepEl.dataset.bridge) {
-      var previewBridge = BRIDGES[previewStepEl.dataset.bridge];
-      previewStepEl.querySelector('[data-bridge-quote]').textContent = withName(previewBridge.lead, previewBridge.rest);
-    }
-    if (previewStepEl.dataset.kind === 'capture') {
-      document.getElementById('captureHeading').textContent = 'Pra onde te mando os detalhes do seu resultado?';
-    }
+  // ---------- Carregar as variantes ----------
+  // O quiz passou a depender de um arquivo do próprio domínio (pré-carregado
+  // no <head>). Se ele falhar, tenta de novo e, na terceira, mostra uma saída
+  // em vez de tela em branco.
+  function carregar(tentativa) {
+    fetch(URL_VARIANTES).then(function (resp) {
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      return resp.json();
+    }).then(function (dados) {
+      if (!dados || !dados.variantes || !dados.variantes.length) throw new Error('variantes.json sem variantes');
+      return dados;
+    }).then(function (dados) {
+      iniciar(escolherVariante(dados.variantes));
+    }, function (err) {
+      if (tentativa < 3) { setTimeout(function () { carregar(tentativa + 1); }, 700); return; }
+      console.error('Não carregou as variantes do quiz:', err);
+      phTrack('quiz_erro_carregamento', { erro: String((err && err.message) || err) });
+      mostrarErro();
+    });
   }
 
-  render();
+  function mostrarErro() {
+    stepsEl.innerHTML =
+      '<div data-step class="is-active">' +
+        '<div class="wrap center">' +
+          '<h2>Não consegui abrir o quiz agora.</h2>' +
+          '<p class="lead">Confira sua conexão e tente de novo.</p>' +
+          '<button type="button" class="btn btn-narrow" id="btnRecarregar">Tentar de novo</button>' +
+        '</div>' +
+      '</div>';
+    document.getElementById('btnRecarregar').addEventListener('click', function () { window.location.reload(); });
+  }
 
-  // ---------- Lógica de cada step ----------
+  carregar(1);
 
-  document.getElementById('btnStart').addEventListener('click', function () {
-    phTrack('quiz_started');
-    window.__funnel.continue();
-  });
+  // ---------- Runtime do funil (ver .claude/skills/quiz-funnel-designer/SKILL.md) ----------
+  function iniciar(variante) {
+    var telas = variante.telas;
+    var resultados = variante.resultados;
+    var arquetipos = Object.keys(resultados); // ordem do JSON = ordem de desempate
+    var totalPerguntas = telas.filter(function (t) { return t.tipo === 'pergunta'; }).length;
+    var telaPorId = {};
+    var telaDoTipo = {};
 
-  // Nome antecipado: campo único, sem e-mail — usado no resto do funil inteiro
-  (function setupNameEarly() {
-    var input = document.getElementById('capNameEarly');
-    var btn = document.getElementById('btnNameContinue');
-    input.addEventListener('input', function () { input.style.borderColor = ''; });
-    btn.addEventListener('click', function () {
-      var val = input.value.trim();
-      if (!val) { input.style.borderColor = 'var(--error)'; input.focus(); return; }
-      localStorage.setItem('quiz_name', val);
+    // Carimba a variante em todo evento desta pessoa daqui pra frente, inclusive
+    // o material_viewed, que é outra página do mesmo domínio. É o que deixa o
+    // painel separar as variantes. No preview a PostHog nem inicia.
+    if (window.posthog && typeof posthog.register === 'function') {
+      posthog.register({ quiz_variant: variante.id });
+    }
+
+    var steps = [];
+    var nPergunta = 0;
+    telas.forEach(function (tela) {
+      if (!MONTAR[tela.tipo]) throw new Error('Tipo de tela desconhecido em ' + variante.id + ': ' + tela.tipo);
+      if (telaPorId[tela.id]) throw new Error('id de tela repetido em ' + variante.id + ': ' + tela.id);
+      telaPorId[tela.id] = tela;
+      if (!telaDoTipo[tela.tipo]) telaDoTipo[tela.tipo] = tela;
+      var node = el(MONTAR[tela.tipo](tela));
+      node.dataset.id = tela.id;
+      node.dataset.kind = tela.tipo;
+      if (tela.tipo === 'pergunta') node.dataset.qindex = String(nPergunta++);
+      stepsEl.appendChild(node);
+      steps.push(node);
+    });
+
+    var idx = 0;
+
+    // ?preview_step= (junto com ?preview=1, ver assets/posthog-init.js) pula
+    // direto pra uma tela no load. Usado pelo /painel do zuppas-life pra
+    // embutir a tela ao vivo num iframe. Aceita o id da tela (o painel usa
+    // esse, que não muda quando outra tela entra antes) ou a posição (formato
+    // antigo, até 12/09/2026).
+    var isPreviewJump = false;
+    (function jumpToPreviewStep() {
+      var raw = new URLSearchParams(window.location.search).get('preview_step');
+      if (raw === null) return;
+      var n = -1;
+      if (/^\d+$/.test(raw)) n = parseInt(raw, 10);
+      else for (var i = 0; i < steps.length; i++) if (steps[i].dataset.id === raw) n = i;
+      if (n < 0 || n >= steps.length) return;
+      idx = n;
+      isPreviewJump = true;
+    })();
+
+    // Um evento genérico com propriedades (em vez de um nome por tela). step_id
+    // e quiz_variant desde 12/09/2026: com eles o painel conta por identidade
+    // da tela, e não por posição, e uma tela nova não empurra as outras.
+    function trackStepView(stepEl) {
+      phTrack('quiz_step_viewed', {
+        step_index: idx,
+        step_id: stepEl.dataset.id,
+        step_kind: stepEl.dataset.kind,
+        question_index: stepEl.dataset.qindex != null ? Number(stepEl.dataset.qindex) + 1 : null,
+        quiz_variant: variante.id
+      });
+    }
+
+    function updateProgress() {
+      // Barra de progresso reflete só as perguntas, não o funil inteiro. Some na
+      // abertura, no resultado, nas pausas e no calculando.
+      var current = steps[idx];
+      var kind = current.dataset.kind;
+      var fill = document.getElementById('progressFill');
+      var shell = document.querySelector('.progress-shell');
+      shell.classList.toggle('is-hidden', idx === 0 || idx === steps.length - 1 || kind === 'pausa' || kind === 'calculando');
+      if (kind === 'pergunta') {
+        var qi = Number(current.dataset.qindex);
+        fill.style.width = (((qi + 1) / totalPerguntas) * 100) + '%';
+      }
+    }
+
+    function render() {
+      steps.forEach(function (s, i) {
+        s.classList.toggle('is-active', i === idx);
+        s.classList.toggle('is-enter', i === idx);
+      });
+      updateProgress();
+      window.scrollTo(0, 0);
+      trackStepView(steps[idx]);
+    }
+
+    // Transição entre steps: fade-out do step atual, só então troca e faz
+    // fade-in do próximo. Sem isso a troca de `display:none` corta seco,
+    // não dá pra animar uma propriedade que já sumiu.
+    var TRANSITION_MS = 160;
+    function goToStep(newIdx) {
+      var current = steps[idx];
+      current.classList.remove('is-enter');
+      current.classList.add('is-leaving');
+      setTimeout(function () {
+        current.classList.remove('is-active', 'is-leaving');
+        idx = newIdx;
+        var next = steps[idx];
+        next.classList.add('is-active', 'is-enter');
+        updateProgress();
+        window.scrollTo(0, 0);
+        trackStepView(next);
+        afterRender();
+      }, TRANSITION_MS);
+    }
+
+    window.__funnel = {
+      variante: variante.id,
+      get currentStep() { return idx + 1; },
+      get totalSteps() { return steps.length; },
+      continue: function () { if (idx < steps.length - 1) goToStep(idx + 1); },
+      back: function () { if (idx > 0) goToStep(idx - 1); }
+    };
+
+    // Texto que depende do nome, preenchido ao entrar na tela (o nome só existe
+    // depois da 2ª tela). Pausas com usaNome, perguntas com ecoaNome (no V1, só
+    // a 7 e a 8, pra não virar mala-direta) e o título da captura. As pausas
+    // sem nome existem de propósito: 4 telas seguidas usando o nome soou
+    // repetitivo.
+    function personalizar(stepEl) {
+      var tela = telaPorId[stepEl.dataset.id];
+      if (tela.tipo === 'pausa') {
+        stepEl.querySelector('[data-bridge-quote]').textContent = tela.usaNome ? comNome(tela.texto) : tela.texto;
+      }
+      if (tela.tipo === 'pergunta' && tela.ecoaNome) {
+        stepEl.querySelector('h2').textContent = comNome(tela.texto);
+      }
+      if (tela.tipo === 'captura') {
+        document.getElementById('captureHeading').textContent = comNome(tela.titulo);
+      }
+    }
+
+    function afterRender() {
+      var current = steps[idx];
+      if (current.dataset.kind === 'calculando') runLoading(telaPorId[current.dataset.id]);
+      personalizar(current);
+    }
+
+    // Preview ao vivo (ver jumpToPreviewStep acima): revelação e resultado só
+    // ganham conteúdo através do cálculo no fim do quiz de verdade. Popular as
+    // duas com um resultado evita que apareçam vazias quando abertas
+    // direto. A tela de calculando fica com o markup estático: não roda a
+    // animação, que levaria pra outra tela sozinha.
+    if (isPreviewJump) {
+      var previewResult = computeResult();
+      populateReveal(previewResult);
+      populateResult(previewResult);
+      personalizar(steps[idx]);
+    }
+
+    render();
+
+    // ---------- Lógica de cada tela ----------
+
+    var btnStart = document.getElementById('btnStart');
+    if (btnStart) {
+      btnStart.addEventListener('click', function () {
+        phTrack('quiz_started');
+        window.__funnel.continue();
+      });
+    }
+
+    // Nome antecipado: campo único, sem e-mail, usado no resto do funil inteiro
+    (function setupNameEarly() {
+      var input = document.getElementById('capNameEarly');
+      var btn = document.getElementById('btnNameContinue');
+      if (!input || !btn) return;
+      input.addEventListener('input', function () { input.style.borderColor = ''; });
+      btn.addEventListener('click', function () {
+        var val = input.value.trim();
+        if (!val) { input.style.borderColor = 'var(--error)'; input.focus(); return; }
+        localStorage.setItem('quiz_name', val);
+        window.__funnel.continue();
+      });
+    })();
+
+    // Pausas e virada de esperança: mesmo botão genérico, delegação de clique
+    stepsEl.addEventListener('click', function (e) {
+      var bridgeBtn = e.target.closest('.btn-bridge');
+      if (bridgeBtn) window.__funnel.continue();
+    });
+
+    // Perguntas: clique na opção grava resposta e avança
+    stepsEl.addEventListener('click', function (e) {
+      var btn = e.target.closest('.option');
+      if (!btn) return;
+      var stepEl = btn.closest('[data-step]');
+      var qi = Number(stepEl.dataset.qindex);
+      localStorage.setItem('quiz_answer_' + (qi + 1), btn.dataset.archetype);
+      phTrack('quiz_question_answered', { question: qi + 1, archetype: btn.dataset.archetype });
       window.__funnel.continue();
     });
-  })();
 
-  // Pausas honestas e virada de esperança: mesmo botão genérico, delegação de clique
-  stepsEl.addEventListener('click', function (e) {
-    var bridgeBtn = e.target.closest('.btn-bridge');
-    if (bridgeBtn) window.__funnel.continue();
-  });
-
-  // Perguntas: clique na opção grava resposta e avança
-  stepsEl.addEventListener('click', function (e) {
-    var btn = e.target.closest('.option');
-    if (!btn) return;
-    var stepEl = btn.closest('[data-step]');
-    var qi = Number(stepEl.dataset.qindex);
-    localStorage.setItem('quiz_answer_' + (qi + 1), btn.dataset.archetype);
-    phTrack('quiz_question_answered', { question: qi + 1, archetype: btn.dataset.archetype });
-    window.__funnel.continue();
-  });
-
-  // Loading: terminal digitando + mensagens + cálculo do resultado + avanço automático
-  // Nome usado como prefixo natural ("Bianca, você não está..."), minúsculo
-  // no encaixe e maiúsculo quando não há nome ainda (fallback) — mesmo padrão
-  // já usado em captureHeading/revealEyebrow/resultTag.
-  function withName(lead, rest) {
-    var name = localStorage.getItem('quiz_name') || '';
-    return (name ? name + ', ' + lead.toLowerCase() : lead) + rest;
-  }
-
-  function afterRender() {
-    var current = steps[idx];
-    if (current.dataset.kind === 'loading') runLoading();
-    if (current.dataset.kind === 'capture') {
-      var name = localStorage.getItem('quiz_name') || '';
-      document.getElementById('captureHeading').textContent =
-        (name ? name + ', p' : 'P') + 'ra onde te mando os detalhes do seu resultado?';
-    }
-    if (current.dataset.bridge) {
-      var b = BRIDGES[current.dataset.bridge];
-      // Bridges 6 e pivot ficam sem nome — 4 telas seguidas usando o nome (6, pivot,
-      // loading, reveal) soou repetitivo; nome permanece só nas bridges 1 e 4.
-      var bridgeKey = current.dataset.bridge;
-      current.querySelector('[data-bridge-quote]').textContent =
-        (bridgeKey === '6' || bridgeKey === 'pivot') ? (b.lead + b.rest) : withName(b.lead, b.rest);
-    }
-    // Nome ecoado nas 2 perguntas mais pesadas (P7 e P8) — só nelas, pra não virar mala-direta
-    if (current.dataset.kind === 'quiz') {
-      var qi = Number(current.dataset.qindex);
-      if (qi === 6 || qi === 7) {
-        var name2 = localStorage.getItem('quiz_name') || '';
-        var original = QUESTIONS[qi].texto;
-        current.querySelector('h2').textContent = name2
-          ? name2 + ', ' + original.charAt(0).toLowerCase() + original.slice(1)
-          : original;
+    function computeResult() {
+      var score = {};
+      arquetipos.forEach(function (a) { score[a] = 0; });
+      var firstSeenAt = {};
+      for (var i = 1; i <= totalPerguntas; i++) {
+        var a = localStorage.getItem('quiz_answer_' + i);
+        if (!a || !(a in score)) continue;
+        score[a]++;
+        if (!(a in firstSeenAt)) firstSeenAt[a] = i;
       }
+      var winner = null, best = -1;
+      arquetipos.forEach(function (arch) {
+        if (score[arch] > best) { best = score[arch]; winner = arch; }
+        else if (score[arch] === best) {
+          // empate: vence quem apareceu primeiro entre as respostas
+          if (firstSeenAt[arch] < firstSeenAt[winner]) winner = arch;
+        }
+      });
+      localStorage.setItem('quiz_result', winner);
+      phTrack('quiz_completed', { result: winner });
+      return winner;
     }
-  }
 
-  function computeResult() {
-    var score = { aprovador: 0, sabotador: 0, ausente: 0, controlador: 0 };
-    var firstSeenAt = {};
-    for (var i = 1; i <= QUESTIONS.length; i++) {
-      var a = localStorage.getItem('quiz_answer_' + i);
-      if (!a || !(a in score)) continue;
-      score[a]++;
-      if (!(a in firstSeenAt)) firstSeenAt[a] = i;
-    }
-    var winner = null, best = -1;
-    ARCHETYPES.forEach(function (arch) {
-      if (score[arch] > best) { best = score[arch]; winner = arch; }
-      else if (score[arch] === best) {
-        // empate: vence quem apareceu primeiro entre as 8 respostas
-        if (firstSeenAt[arch] < firstSeenAt[winner]) winner = arch;
+    function runLoading(tela) {
+      var RING_CIRC = 339.292; // 2 * PI * r(54)
+      var DURATION = tela.duracaoMs || 3100; // mesma duração do ciclo inteiro (frases + cálculo)
+      var ringFill = document.getElementById('loadingRingFill');
+      var percentEl = document.getElementById('loadingPercent');
+      ringFill.style.strokeDashoffset = RING_CIRC;
+      percentEl.textContent = '0%';
+
+      var startTs = null;
+      function tick(ts) {
+        if (startTs === null) startTs = ts;
+        var pct = Math.min(100, Math.round(((ts - startTs) / DURATION) * 100));
+        percentEl.textContent = pct + '%';
+        ringFill.style.strokeDashoffset = RING_CIRC * (1 - pct / 100);
+        if (pct < 100) requestAnimationFrame(tick);
       }
-    });
-    localStorage.setItem('quiz_result', winner);
-    phTrack('quiz_completed', { result: winner });
-    return winner;
-  }
+      requestAnimationFrame(tick);
 
-  function runLoading() {
-    var RING_CIRC = 339.292; // 2 * PI * r(54)
-    var DURATION = 3100; // mesma duração do ciclo inteiro (frases + cálculo)
-    var ringFill = document.getElementById('loadingRingFill');
-    var percentEl = document.getElementById('loadingPercent');
-    ringFill.style.strokeDashoffset = RING_CIRC;
-    percentEl.textContent = '0%';
+      var phraseEl = document.getElementById('loadingPhrase');
+      var phrases = tela.frases;
 
-    var startTs = null;
-    function tick(ts) {
-      if (startTs === null) startTs = ts;
-      var pct = Math.min(100, Math.round(((ts - startTs) / DURATION) * 100));
-      percentEl.textContent = pct + '%';
-      ringFill.style.strokeDashoffset = RING_CIRC * (1 - pct / 100);
-      if (pct < 100) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
+      function swapPhrase(text) {
+        phraseEl.classList.add('is-swapping');
+        setTimeout(function () {
+          phraseEl.textContent = text;
+          phraseEl.classList.remove('is-swapping');
+        }, 220);
+      }
 
-    var phraseEl = document.getElementById('loadingPhrase');
-    var phrases = [
-      'Lendo suas respostas...',
-      'Reconhecendo o padrão...',
-      'Encontrando onde ele começou...',
-      'Preparando o seu código...'
-    ];
+      phraseEl.textContent = phrases[0];
+      var pi = 1;
+      var phraseTimer = setInterval(function () {
+        if (pi >= phrases.length) { clearInterval(phraseTimer); return; }
+        swapPhrase(phrases[pi]);
+        pi++;
+      }, 750);
 
-    function swapPhrase(text) {
-      phraseEl.classList.add('is-swapping');
       setTimeout(function () {
-        phraseEl.textContent = text;
-        phraseEl.classList.remove('is-swapping');
-      }, 220);
+        clearInterval(phraseTimer);
+        var result = computeResult();
+        swapPhrase(tela.final);
+        percentEl.textContent = '100%';
+        ringFill.style.strokeDashoffset = 0;
+        populateReveal(result);
+        populateResult(result);
+        setTimeout(function () { window.__funnel.continue(); }, 900);
+      }, DURATION);
     }
 
-    phraseEl.textContent = phrases[0];
-    var pi = 1;
-    var phraseTimer = setInterval(function () {
-      if (pi >= phrases.length) { clearInterval(phraseTimer); return; }
-      swapPhrase(phrases[pi]);
-      pi++;
-    }, 750);
+    function populateReveal(result) {
+      var tela = telaDoTipo.revelacao;
+      if (!tela) return;
+      document.getElementById('revealEyebrow').textContent = comNome(tela.sobretitulo);
+      document.getElementById('revealOrbImg').src = IMG + resultados[result].img;
+      document.getElementById('revealLabel').textContent = resultados[result].label;
+    }
 
-    setTimeout(function () {
-      clearInterval(phraseTimer);
-      var result = computeResult();
-      swapPhrase('Encontramos.');
-      percentEl.textContent = '100%';
-      ringFill.style.strokeDashoffset = 0;
-      populateReveal(result);
-      populateResult(result);
-      setTimeout(function () { window.__funnel.continue(); }, 900);
-    }, DURATION);
+    function populateResult(result) {
+      if (!telaDoTipo.resultado) return;
+      document.getElementById('resultBadgeImg').src = IMG + resultados[result].img;
+      document.getElementById('resultArchetype').textContent = resultados[result].label;
+      var body = document.getElementById('resultBody');
+      body.innerHTML = resultados[result].corpo.map(function (p) { return '<p>' + p + '</p>'; }).join('');
+      document.getElementById('btnMaterial').href = '/material?r=' + result;
+    }
+
+    var btnToCapture = document.getElementById('btnToCapture');
+    if (btnToCapture) {
+      btnToCapture.addEventListener('click', function () {
+        window.__funnel.continue();
+      });
+    }
+
+    setupCapture(variante);
   }
-
-  function populateReveal(result) {
-    var name = localStorage.getItem('quiz_name') || '';
-    document.getElementById('revealEyebrow').textContent = (name ? name + ', seu' : 'Seu') + ' código instalado é:';
-    document.getElementById('revealOrbImg').src = '../assets/img/' + RESULTS[result].img;
-    document.getElementById('revealLabel').textContent = RESULTS[result].label;
-  }
-
-  function populateResult(result) {
-    document.getElementById('resultBadgeImg').src = '../assets/img/' + RESULTS[result].img;
-    document.getElementById('resultTag').textContent = 'Seu código instalado é:';
-    document.getElementById('resultArchetype').textContent = RESULTS[result].label;
-    var body = document.getElementById('resultBody');
-    body.innerHTML = RESULTS[result].corpo.map(function (p) { return '<p>' + p + '</p>'; }).join('');
-    document.getElementById('btnMaterial').href = '/material?r=' + result;
-  }
-
-  document.getElementById('btnToCapture').addEventListener('click', function () {
-    window.__funnel.continue();
-  });
 
   // Captura: valida e-mail (formato + descartável + sugestão de typo), grava lead, envia pro backend
-  (function setupCapture() {
+  function setupCapture(variante) {
     var EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
     var DISPOSABLE = {
       'mailinator.com':1,'guerrillamail.com':1,'guerrillamail.info':1,'guerrillamail.net':1,
@@ -974,6 +929,7 @@
     }
 
     var form = document.getElementById('captureForm');
+    if (!form) return; // variante sem tela de captura
     var emailInput = document.getElementById('capEmail');
     var msg = document.querySelector('[data-email-msg]');
     var sug = document.querySelector('[data-email-suggestion]');
@@ -1037,6 +993,7 @@
           name: name,
           email: value,
           result: result,
+          quiz_variant: variante.id,
           event_type: 'isca',
           offer: 'quiz-diagnostico',
           product: 'metodo-calice',
@@ -1075,7 +1032,7 @@
 
       window.__funnel.continue();
     });
-  })();
+  }
 })();
 </script>
 </body>
