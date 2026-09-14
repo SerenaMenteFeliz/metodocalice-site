@@ -66,6 +66,21 @@ export default async function handler(req, res) {
     contactId = await saveToSupabase(contact, event);
   } catch (err) {
     console.error('Falha ao gravar no Supabase:', err.message);
+    // O log da Vercel some em cerca de 1 hora, e em 13/09/2026 dois leads se
+    // perderam aqui sem deixar causa (contato criado, lead_events não). Registrar
+    // a falha na PostHog, que guarda por meses. Sem e-mail no evento: o texto do
+    // erro do PostgREST pode citar o valor da chave, então e-mail vira <email>.
+    try {
+      const erro = String(err.message || err).replace(/[^\s@"'()=]+@[^\s@"'()=]+/g, '<email>').slice(0, 600);
+      await capturePostHog('lead_falhou', 'servidor-subscribe', {
+        erro,
+        causa: err.cause ? String(err.cause.code || err.cause.message || err.cause) : null,
+        etapa: err.etapa || null,
+        offer: event.offer,
+        product: event.product,
+        quiz_variant: event.quiz_variant,
+      });
+    } catch (_) { /* registrar a falha não pode virar outra falha */ }
     return res.status(500).json({ error: 'Não conseguimos salvar agora. Tenta de novo?' });
   }
 
@@ -124,6 +139,19 @@ async function saveToSupabase(contact, event) {
     'Content-Type': 'application/json',
   };
 
+  // `progresso.etapa` vai junto do erro pro evento lead_falhou (ver o handler):
+  // nas duas perdas de 13/09/2026 o contato existia e o lead_events não, e sem
+  // saber em qual das três chamadas a função parou não dá pra achar a causa.
+  const progresso = { etapa: 'contacts' };
+  try {
+    return await gravarNoSupabase(url, headers, contact, event, progresso);
+  } catch (e) {
+    if (e && typeof e === 'object' && !e.etapa) e.etapa = progresso.etapa;
+    throw e;
+  }
+}
+
+async function gravarNoSupabase(url, headers, contact, event, progresso) {
   // 1a. Upsert contact — on conflict(email): atualiza name e updated_at
   const upsertResp = await fetch(`${url}/rest/v1/contacts`, {
     method: 'POST',
@@ -140,15 +168,18 @@ async function saveToSupabase(contact, event) {
   }
 
   // 1b. Buscar o id do contact (necessário para a FK em lead_events)
+  progresso.etapa = 'select';
   const selectResp = await fetch(
     `${url}/rest/v1/contacts?email=eq.${encodeURIComponent(contact.email)}&select=id`,
     { headers: { ...headers, Prefer: 'return=representation' } }
   );
   const rows = await selectResp.json();
+  if (!selectResp.ok) throw new Error(`contacts select ${selectResp.status}: ${JSON.stringify(rows)}`);
   if (!rows || rows.length === 0) throw new Error('Não encontrou o contact após upsert');
   const contactId = rows[0].id;
 
   // 1c. Insert lead_event
+  progresso.etapa = 'lead_events';
   let err = await insertLeadEvent(url, headers, { contact_id: contactId, ...event });
 
   // A coluna quiz_variant nasce na migration 0004, aplicada à mão no painel do

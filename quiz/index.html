@@ -363,6 +363,19 @@
   var CHAVE_VARIANTE = 'quiz_variante';
   var EM_PREVIEW = typeof IS_PREVIEW !== 'undefined' && IS_PREVIEW; // definido em assets/posthog-init.js
 
+  // ---------- UTM (best-effort, captado uma vez na abertura) ----------
+  // Roda antes de tudo, sem esperar as variantes: a URL com utm_* só existe na
+  // chegada. Em 12/09/2026 este bloco ficou de fora da reescrita pra variantes, e
+  // por um dia todo lead foi gravado como utm_content=direto, inclusive quem veio
+  // da bio da Ge (a PostHog tinha o utm certo, o banco não). Achado em 13/09.
+  (function captureUTM() {
+    var q = new URLSearchParams(window.location.search);
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].forEach(function (k) {
+      var v = q.get(k);
+      if (v) localStorage.setItem('quiz_' + k, v);
+    });
+  })();
+
   var stepsEl = document.getElementById('steps');
 
   function el(html) {
@@ -1003,6 +1016,15 @@
           utm_content: localStorage.getItem('quiz_utm_content') || 'direto'
         })
       }).then(function (resp) {
+        // A tela segue pro resultado mesmo com erro (fire-and-forget), então sem
+        // este evento um lead perdido não deixa rastro nenhum: em 13/09/2026 dois
+        // se perderam e só apareceram cruzando contacts com lead_events à mão.
+        // Pega também o caso em que a função é encerrada no meio (502/504), em
+        // que o servidor não chega a registrar nada.
+        if (!resp.ok) {
+          phTrack('lead_erro_envio', { status: resp.status, quiz_variant: variante.id });
+          return null; // 502/504 da Vercel vem em HTML: não tentar ler como JSON
+        }
         return resp.json();
       }).then(function (data) {
         // Identifica pelo contact_id (contacts.id do Supabase), não pelo
@@ -1028,6 +1050,7 @@
         // fire-and-forget: não bloqueia a experiência se a rede falhar — o lead
         // ainda vê o resultado; o e-mail de reforço fica pendente até reenviar depois.
         console.error('Erro ao enviar o lead:', err);
+        phTrack('lead_erro_envio', { status: 'rede', erro: String((err && err.message) || err).slice(0, 200), quiz_variant: variante.id });
       });
 
       window.__funnel.continue();
