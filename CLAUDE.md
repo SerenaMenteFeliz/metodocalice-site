@@ -87,9 +87,21 @@ do próprio JSON (`_leia_antes`); as que mais mordem:
   resultado) exige código no `quiz/index.html`. Arquétipo novo exige `VALID_RESULTS` no
   `api/subscribe.js` e o material.
 
-**Migration `0004_add_quiz_variant.sql`**: enquanto não for aplicada, o PostgREST recusa o insert
-inteiro com `PGRST204`, e o `subscribe.js` regrava o lead sem a coluna. Não tirar essa volta
-antes de a coluna existir: sem ela, todo lead vira 500.
+**Migration `0004_add_quiz_variant.sql`**: aplicada em 13/09/2026 (a regravação sem a coluna que
+cobria o período sem ela saiu do `subscribe.js`).
+
+## Lead perdido em silêncio (13/09/2026): o que o `subscribe.js` faz por causa disso
+
+Dois leads se perderam num dia: o contato era criado (201) e o GET que buscava o id dele, um
+segundo depois, voltava **504 do gateway do Supabase**. A tela seguia pro resultado (o envio é
+fire-and-forget), então nada acusava. A causa só apareceu no log de API do Supabase, que dura 1
+dia; o log da Vercel já tinha sumido. Por isso:
+
+- **O id do contato novo vem da resposta do próprio insert** (`return=representation`). O GET só
+  roda quando o contato já existe (409), e tenta 3 vezes em 5xx. Não voltar a descartar a resposta.
+- **Toda falha vai pra PostHog**: `lead_falhou` no servidor (com `etapa`: contacts, select ou
+  lead_events) e `lead_erro_envio` no navegador (pega até 502/504 da própria função). Lead sumido
+  se procura ali primeiro, antes de cruzar `contacts` com `lead_events` à mão.
 
 ## `?preview=1`, `?preview_step=` e `?v=`
 

@@ -139,9 +139,10 @@ async function saveToSupabase(contact, event) {
     'Content-Type': 'application/json',
   };
 
-  // `progresso.etapa` vai junto do erro pro evento lead_falhou (ver o handler):
-  // nas duas perdas de 13/09/2026 o contato existia e o lead_events não, e sem
-  // saber em qual das três chamadas a função parou não dá pra achar a causa.
+  // `progresso.etapa` vai junto do erro pro evento lead_falhou (ver o handler).
+  // Nas duas perdas de 13/09/2026 a causa só apareceu no log de API do
+  // Supabase, que dura 1 dia; com a etapa no evento, a próxima falha já diz
+  // onde a função parou.
   const progresso = { etapa: 'contacts' };
   try {
     return await gravarNoSupabase(url, headers, contact, event, progresso);
@@ -167,37 +168,63 @@ async function gravarNoSupabase(url, headers, contact, event, progresso) {
     throw new Error(`contacts upsert ${upsertResp.status}: ${JSON.stringify(err)}`);
   }
 
-  // 1b. Buscar o id do contact (necessário para a FK em lead_events)
-  progresso.etapa = 'select';
-  const selectResp = await fetch(
-    `${url}/rest/v1/contacts?email=eq.${encodeURIComponent(contact.email)}&select=id`,
-    { headers: { ...headers, Prefer: 'return=representation' } }
-  );
-  const rows = await selectResp.json();
-  if (!selectResp.ok) throw new Error(`contacts select ${selectResp.status}: ${JSON.stringify(rows)}`);
-  if (!rows || rows.length === 0) throw new Error('Não encontrou o contact após upsert');
-  const contactId = rows[0].id;
+  // 1b. O id do contact (necessário para a FK em lead_events).
+  //
+  // Contato NOVO: o id vem na própria resposta do insert (return=representation).
+  // Até 13/09/2026 essa resposta era descartada e a função perguntava o id de
+  // novo num GET logo em seguida, e foi exatamente esse GET que derrubou os dois
+  // leads perdidos naquele dia: o gateway do Supabase devolveu 504 um segundo
+  // depois do insert ter dado 201 (log de API do Supabase, 07:30 e 23:21 UTC).
+  // Contato que JÁ EXISTE: o insert dá 409 e não devolve linha, então o GET
+  // continua necessário, agora com nova tentativa em 5xx (é leitura, repetir
+  // não tem efeito colateral).
+  let contactId = null;
+  if (upsertResp.ok) {
+    const criados = await upsertResp.json().catch(() => null);
+    if (Array.isArray(criados) && criados[0] && criados[0].id) contactId = criados[0].id;
+  }
+  if (!contactId) {
+    progresso.etapa = 'select';
+    contactId = await buscarIdDoContato(url, headers, contact.email);
+  }
 
   // 1c. Insert lead_event
   progresso.etapa = 'lead_events';
-  let err = await insertLeadEvent(url, headers, { contact_id: contactId, ...event });
-
-  // A coluna quiz_variant nasce na migration 0004, aplicada à mão no painel do
-  // Supabase. Enquanto ela não existir, o PostgREST recusa o insert INTEIRO
-  // com PGRST204 (medido em 12/09/2026), e sem esta volta cada lead do quiz
-  // viraria 500. Grava sem a coluna e segue: perder a variante de um lead é
-  // barato, perder o lead não. Pode sair depois que a migration estiver no ar.
-  if (err && err.body && err.body.code === 'PGRST204' && String(err.body.message).includes('quiz_variant')) {
-    console.warn('lead_events sem a coluna quiz_variant (migration 0004 pendente): gravando sem ela.');
-    const { quiz_variant, ...semVariante } = event;
-    err = await insertLeadEvent(url, headers, { contact_id: contactId, ...semVariante });
-  }
+  // quiz_variant existe desde a migration 0004 (aplicada em 13/09/2026). Até
+  // ali havia aqui uma segunda tentativa sem a coluna, que saiu junto.
+  const err = await insertLeadEvent(url, headers, { contact_id: contactId, ...event });
 
   if (err) {
     throw new Error(`lead_events insert ${err.status}: ${JSON.stringify(err.body)}`);
   }
 
   return contactId;
+}
+
+// GET do id pelo e-mail, com até 3 tentativas quando o Supabase responde 5xx ou
+// a rede cai. O 504 de 13/09/2026 veio do gateway deles e é passageiro.
+async function buscarIdDoContato(url, headers, email) {
+  const ESPERAS_MS = [0, 400, 1200];
+  let ultimoErro = null;
+  for (const espera of ESPERAS_MS) {
+    if (espera) await new Promise((r) => setTimeout(r, espera));
+    let resp;
+    try {
+      resp = await fetch(`${url}/rest/v1/contacts?email=eq.${encodeURIComponent(email)}&select=id`, { headers });
+    } catch (err) {
+      ultimoErro = err;
+      continue;
+    }
+    if (resp.status >= 500) {
+      ultimoErro = new Error(`contacts select ${resp.status}`);
+      continue;
+    }
+    const rows = await resp.json().catch(() => null);
+    if (!resp.ok) throw new Error(`contacts select ${resp.status}: ${JSON.stringify(rows)}`);
+    if (!Array.isArray(rows) || rows.length === 0) throw new Error('Não encontrou o contact após upsert');
+    return rows[0].id;
+  }
+  throw ultimoErro;
 }
 
 // Devolve null se gravou, ou { status, body } do erro.
