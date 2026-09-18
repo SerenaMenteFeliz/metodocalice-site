@@ -5,8 +5,10 @@
     "status: 'ativa' recebe tráfego pelo peso; 'rascunho' e 'encerrada' só abrem por ?v=<id>. peso é a fatia entre as ativas (100 e 100 = meio a meio). O sorteio fica guardado no navegador, então a mesma pessoa sempre vê a mesma variante.",
     "id de tela é a identidade dela na PostHog (step_id). Não renomear id de variante que já recebeu tráfego: os números dela ficam órfãos. Pra mudar o conteúdo de uma tela, mudar o texto e manter o id. Tela nova ganha id novo.",
     "rotulo é o nome que aparece no painel. Não aparece pra quem faz o quiz.",
-    "Aceitam HTML simples (<em>, <span class=\"mark\">): abertura.titulo, abertura.subtitulo, abertura.texto, revelacao.texto e resultados.*.corpo. Todo o resto é texto puro.",
-    "Tipos de tela: abertura, nome, pergunta, pausa, calculando, revelacao, captura, resultado. Tipo novo exige código no quiz/index.html.",
+    "Aceitam HTML simples (<em>, <span class=\"mark\">): abertura.titulo, abertura.subtitulo, abertura.texto, revelacao.texto, oferta.ponteTitulo, oferta.ponteTexto e resultados.*.corpo. Todo o resto é texto puro.",
+    "Tipos de tela: abertura, nome, pergunta, pausa, calculando, revelacao, captura, resultado, oferta. Tipo novo exige código no quiz/index.html.",
+    "oferta é o paywall (18/09/2026): mostra o diagnóstico completo de graça e vende o Método Cálice. Uma variante ou tem captura ou tem oferta, nunca as duas: as duas cobrariam pedágio pela mesma tela e a segunda leria como troca de regra no fim.",
+    "produto.garantia vazia não desenha nada. Está vazia de propósito até o Yan decidir se existe garantia, porque inventar política de reembolso em copy é promessa que alguém vai ter que honrar.",
     "O arquétipo de cada opção vem de 'arquetipo', não da posição. Os slugs precisam existir em 'resultados' e em VALID_RESULTS do api/subscribe.js, e o material/index.html abre por eles.",
     "Imagens em assets/img/. Imagem nova entra lá antes de ser citada aqui."
   ],
@@ -257,7 +259,7 @@
     {
       "id": "v2",
       "nome": "V2",
-      "descricao": "Cópia do V1 criada em 12/09/2026, ainda sem mudança",
+      "descricao": "Sem nome e sem captura: quiz grátis até o diagnóstico, paywall do Método Cálice no fim",
       "status": "rascunho",
       "peso": 0,
       "telas": [
@@ -270,14 +272,6 @@
           "imagem": "hook.webp",
           "texto": "Descubra o seu em 8 perguntas e <span class=\"mark\">comece a reescrever o que não te serve mais</span>.",
           "botao": "Descobrir meu código"
-        },
-        {
-          "id": "nome",
-          "rotulo": "Nome",
-          "tipo": "nome",
-          "titulo": "Antes de começarmos: como posso te chamar?",
-          "placeholder": "Seu primeiro nome",
-          "botao": "Continuar"
         },
         {
           "id": "p1",
@@ -309,7 +303,7 @@
           "tipo": "pausa",
           "imagem": "bridge-ondas.webp",
           "texto": "Você não está só nisso. Esse tipo de resposta é mais comum do que parece.",
-          "usaNome": true,
+          "usaNome": false,
           "botao": "Continuar"
         },
         {
@@ -354,7 +348,7 @@
           "tipo": "pausa",
           "imagem": "bridge-raizes.webp",
           "texto": "As próximas perguntas tocam num lugar mais fundo. Não existe resposta certa, só a que for mais verdadeira pra você agora.",
-          "usaNome": true,
+          "usaNome": false,
           "botao": "Continuar"
         },
         {
@@ -374,7 +368,7 @@
           "rotulo": "Pergunta 7",
           "tipo": "pergunta",
           "texto": "Qual palavra mais descreve como você se sente quando pensa na sua vida hoje?",
-          "ecoaNome": true,
+          "ecoaNome": false,
           "opcoes": [
             { "texto": "Sem energia", "emoji": "🪫", "arquetipo": "aprovador" },
             { "texto": "Sem rumo", "emoji": "🧭", "arquetipo": "sabotador" },
@@ -396,7 +390,7 @@
           "rotulo": "Pergunta 8",
           "tipo": "pergunta",
           "texto": "Quando imagina ser completamente você, sem filtro, sem audiência: o que aparece?",
-          "ecoaNome": true,
+          "ecoaNome": false,
           "opcoes": [
             { "texto": "Medo de que as pessoas não gostem", "emoji": "😨", "arquetipo": "aprovador" },
             { "texto": "Dúvida se essa pessoa existe de verdade", "emoji": "❔", "arquetipo": "sabotador" },
@@ -436,63 +430,73 @@
           "botao": "Ver o que isso significa"
         },
         {
-          "id": "captura",
-          "rotulo": "Captura de e-mail",
-          "tipo": "captura",
-          "imagem": "envelope.webp",
-          "titulo": "Pra onde te mando os detalhes do seu resultado?",
-          "rotuloCampo": "Seu melhor e-mail",
-          "placeholder": "voce@email.com",
-          "aviso": "Ao continuar, você concorda em receber e-mails sobre este conteúdo. Pode cancelar quando quiser.",
-          "botao": "Ver meu resultado completo"
-        },
-        {
-          "id": "resultado",
-          "rotulo": "Resultado completo",
-          "tipo": "resultado",
+          "id": "oferta",
+          "rotulo": "Oferta (paywall)",
+          "tipo": "oferta",
           "sobretitulo": "Seu código instalado é:",
-          "botao": "Quero ver meu material completo"
+          "ponteTitulo": "O que foi instalado pode ser <span class=\"mark\">desinstalado</span>.",
+          "ponteTexto": "Saber o nome do seu código é a metade que dói. A outra metade é o caminho de volta, e é exatamente isso que o Método Cálice é: entender como a crença entrou, e depois desmontar ela, um dia de cada vez.",
+          "produto": {
+            "nome": "Método Cálice",
+            "promessa": "O livro que explica como o seu código foi instalado, e 10 dias de prática guiada pra desinstalar ele.",
+            "inclusos": [
+              "O livro completo, 13 capítulos, com \"Como as Crenças se Instalam Sem Você Perceber\" e \"Como Desinstalar o Que é Invisível\"",
+              "10 Dias de Prática Guiada, do Detox Mental até a Integração",
+              "Notas pessoais por capítulo, pra registrar o que for aparecendo no caminho",
+              "Acesso vitalício, no seu ritmo, sem turma e sem prazo"
+            ],
+            "precoDe": "R$341",
+            "precoPor": "R$37",
+            "selo": "turma fundadora · Pix · acesso imediato",
+            "botao": "Quero desinstalar esse código",
+            "url": "https://serena-app-lac.vercel.app/comprar/metodo-calice",
+            "garantia": ""
+          }
         }
       ],
       "resultados": {
         "aprovador": {
           "label": "O Aprovador",
           "img": "badge-aprovador.webp",
+          "ofertaGancho": "No seu caso, o trabalho começa em conseguir dizer não sem sentir que vai perder alguém.",
           "corpo": [
             "Você aprendeu cedo que agradar é mais seguro do que ser você.",
             "Então foi ajustando. A voz, os limites, as escolhas. Sempre com um olho no que os outros precisam de você. Sempre disponível. Sempre \"tá bom.\"",
             "O resultado? Uma vida construída em torno da aprovação alheia. E um cansaço que nenhum descanso resolve, porque não é cansaço físico. É o cansaço de carregar uma versão sua que não é a sua.",
-            "O material que você vai receber agora vai te mostrar exatamente quando e como esse código foi instalado. E por que não é fraqueza. É neurobiologia."
+            "E isso não é fraqueza de caráter. É um código que alguém instalou em você, muito cedo, quando agradar era a única moeda que você tinha."
           ]
         },
         "sabotador": {
           "label": "O Sabotador",
           "img": "badge-sabotador.webp",
+          "ofertaGancho": "No seu caso, o trabalho começa em separar o medo de chegar lá do medo do que vem depois.",
           "corpo": [
             "Você deseja. Planeja. Começa. E na hora H, algo te puxa de volta.",
             "Não é falta de força de vontade. É um arquivo gravado no seu subconsciente que diz que você não merece chegar lá. Que sucesso é perigoso. Que se você se destacar demais, vai perder algo, ou alguém.",
             "Então você chega perto. E derruba.",
-            "O material que você vai receber agora vai te mostrar a raiz exata desse código. Onde foi instalado, quem instalou, e por que seu cérebro ainda obedece ele."
+            "E não é você que derruba. É um arquivo antigo cumprindo exatamente a função que aprendeu: te manter onde já é conhecido, mesmo que seja pequeno demais pra você."
           ]
         },
         "ausente": {
           "label": "O Ausente",
           "img": "badge-ausente.webp",
+          "ofertaGancho": "No seu caso, o trabalho começa em voltar a sentir antes de decidir.",
           "corpo": [
             "Você está presente em tudo. No trabalho, nas relações, nas obrigações.",
             "Mas ausente de si.",
             "Você vai, faz, cumpre. Funciona. Mas em algum ponto do caminho perdeu o fio de volta pra você. E agora quando alguém pergunta o que você quer, o que você sente, quem você é, a resposta demora mais do que deveria.",
-            "O material que você vai receber agora vai te mostrar como essa desconexão aconteceu. E que ela não é quem você é. É o que te fizeram ser."
+            "E essa desconexão não aconteceu num dia. Ela foi sendo construída em cada vez que o que você queria valeu menos do que o que precisava ser feito."
           ]
         },
         "controlador": {
           "label": "O Controlador",
           "img": "badge-controlador.webp",
+          "ofertaGancho": "No seu caso, o trabalho começa em soltar uma coisa pequena e descobrir que nada desmorona.",
           "corpo": [
             "Você aprendeu que o mundo não é seguro quando as coisas saem do seu controle.",
             "Então você planeja. Prevê. Organiza. Prepara pra todos os cenários possíveis. Às vezes parece que você está sempre a postos, mas nunca age de verdade.",
             "Por baixo do controle existe um medo muito antigo: o de que se você soltar, tudo desmorona. Que a segurança depende de você segurando tudo.",
-            "O material que você vai receber agora vai te mostrar onde esse código nasceu. E o que acontece quando você descobre que pode soltar."
+            "E esse medo não é irracional. Ele foi treinado, em algum lugar onde soltar realmente custou caro."
           ]
         }
       }
