@@ -22,7 +22,7 @@
       "telas": [
         {
           "id": "abertura",
-          "rotulo": "Abertura (hook)",
+          "rotulo": "O que trava",
           "tipo": "abertura",
           "titulo": "Tem uma parte de você que trava, sempre no <em>mesmo ponto</em>.",
           "subtitulo": "Não é falta de força de vontade: é um <span class=\"mark\">código específico</span>, instalado em você há muito tempo.",
@@ -32,7 +32,7 @@
         },
         {
           "id": "nome",
-          "rotulo": "Nome",
+          "rotulo": "Seu primeiro nome",
           "tipo": "nome",
           "titulo": "Antes de começarmos: como posso te chamar?",
           "placeholder": "Seu primeiro nome",
@@ -40,7 +40,7 @@
         },
         {
           "id": "p1",
-          "rotulo": "Pergunta 1",
+          "rotulo": "Pedido indesejado",
           "tipo": "pergunta",
           "texto": "Quando alguém te pede algo que você não quer fazer, você normalmente:",
           "opcoes": [
@@ -52,7 +52,7 @@
         },
         {
           "id": "p2",
-          "rotulo": "Pergunta 2",
+          "rotulo": "Perto de conseguir",
           "tipo": "pergunta",
           "texto": "Quando está muito perto de alcançar algo importante, o que acontece?",
           "opcoes": [
@@ -64,7 +64,7 @@
         },
         {
           "id": "pausa-1",
-          "rotulo": "Pausa",
+          "rotulo": "Não está só",
           "tipo": "pausa",
           "imagem": "bridge-ondas.webp",
           "texto": "Você não está só nisso. Esse tipo de resposta é mais comum do que parece.",
@@ -73,7 +73,7 @@
         },
         {
           "id": "p3",
-          "rotulo": "Pergunta 3",
+          "rotulo": "Voz interna",
           "tipo": "pergunta",
           "texto": "Qual dessas frases mais soa como sua voz interna?",
           "opcoes": [
@@ -85,7 +85,7 @@
         },
         {
           "id": "p4",
-          "rotulo": "Pergunta 4",
+          "rotulo": "Receber elogio",
           "tipo": "pergunta",
           "texto": "Quando recebe um elogio genuíno, você:",
           "opcoes": [
@@ -97,7 +97,7 @@
         },
         {
           "id": "p5",
-          "rotulo": "Pergunta 5",
+          "rotulo": "Relação com mudança",
           "tipo": "pergunta",
           "texto": "Como é sua relação com mudança?",
           "opcoes": [
@@ -109,7 +109,7 @@
         },
         {
           "id": "pausa-2",
-          "rotulo": "Pausa",
+          "rotulo": "Lugar mais fundo",
           "tipo": "pausa",
           "imagem": "bridge-raizes.webp",
           "texto": "As próximas perguntas tocam num lugar mais fundo. Não existe resposta certa, só a que for mais verdadeira pra você agora.",
@@ -118,7 +118,7 @@
         },
         {
           "id": "p6",
-          "rotulo": "Pergunta 6",
+          "rotulo": "Fim do dia",
           "tipo": "pergunta",
           "texto": "No final de um dia comum, você geralmente sente:",
           "opcoes": [
@@ -130,7 +130,7 @@
         },
         {
           "id": "p7",
-          "rotulo": "Pergunta 7",
+          "rotulo": "Como se sente",
           "tipo": "pergunta",
           "texto": "Qual palavra mais descreve como você se sente quando pensa na sua vida hoje?",
           "ecoaNome": true,
@@ -143,7 +143,7 @@
         },
         {
           "id": "pausa-3",
-          "rotulo": "Pausa",
+          "rotulo": "Falta uma pergunta",
           "tipo": "pausa",
           "imagem": "bridge-flor.webp",
           "texto": "Nomear o que você sente já é o primeiro movimento de mudança. Falta só mais uma pergunta.",
@@ -152,7 +152,7 @@
         },
         {
           "id": "p8",
-          "rotulo": "Pergunta 8",
+          "rotulo": "Você sem filtro",
           "tipo": "pergunta",
           "texto": "Quando imagina ser completamente você, sem filtro, sem audiência: o que aparece?",
           "ecoaNome": true,
@@ -165,7 +165,7 @@
         },
         {
           "id": "virada",
-          "rotulo": "Virada de esperança",
+          "rotulo": "Pode ser reescrito",
           "tipo": "pausa",
           "imagem": "bridge-universo.webp",
           "texto": "Isso que você acabou de sentir tem nome. E o que tem nome, pode ser entendido. E o que pode ser entendido, pode ser reescrito.",
@@ -188,7 +188,7 @@
         },
         {
           "id": "revelacao",
-          "rotulo": "Revelação parcial",
+          "rotulo": "Seu código revelado",
           "tipo": "revelacao",
           "sobretitulo": "Seu código instalado é:",
           "texto": "Isso explica muita coisa: <span class=\"mark\">o que foi instalado pode ser reescrito</span>.",
@@ -196,7 +196,7 @@
         },
         {
           "id": "captura",
-          "rotulo": "Captura de e-mail",
+          "rotulo": "Seu melhor e-mail",
           "tipo": "captura",
           "imagem": "envelope.webp",
           "titulo": "Pra onde te mando os detalhes do seu resultado?",
@@ -207,7 +207,7 @@
         },
         {
           "id": "resultado",
-          "rotulo": "Resultado completo",
+          "rotulo": "Diagnóstico completo",
           "tipo": "resultado",
           "sobretitulo": "Seu código instalado é:",
           "botao": "Quero ver meu material completo"
