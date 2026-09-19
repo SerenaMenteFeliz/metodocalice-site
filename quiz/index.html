@@ -313,34 +313,135 @@
   .result-archetype { font-family: var(--font-display); font-weight: 700; font-style: italic; font-size: 27px; line-height: 1.25; color: var(--surface-dark-fg); margin: 0 0 16px; }
   .result-body p { margin: 0 0 16px; font-size: 15.5px; color: var(--surface-dark-fg); opacity: .92; }
 
-  /* ---------- oferta: o paywall (18/09/2026) ----------
-     Fica depois do card de resultado e usa a mesma família visual dele de
-     propósito: o diagnóstico é o bloco escuro e fechado, a oferta é o bloco
-     claro e aberto. A troca de fundo é o que marca "acabou o que você é,
-     começou o que dá pra fazer". Sem color-mix, igual ao resto do arquivo:
-     o tráfego aqui é celular frio e navegador velho custa venda. */
-  .oferta-ponte { margin: 0 0 24px; }
-  .oferta-ponte h2 { font-size: 22px; line-height: 1.3; margin: 0 0 12px; }
-  .oferta-ponte p { margin: 0 0 12px; font-size: 15.5px; line-height: 1.6; }
-  .oferta-card {
+  /* ---------- oferta: o paywall em blocos (18/09/2026) ----------
+     Começou como um card só e virou página de venda no mesmo dia: curiosidade,
+     promessa, entrega, preço, prova, FAQ, autora, fechamento. A ordem e o
+     conteúdo moram no `variantes.json`; aqui é só o desenho de cada tipo.
+
+     O card escuro do diagnóstico fica em cima e continua grátis. A partir daí
+     tudo é claro, e a troca de fundo é o que marca "acabou o que você é,
+     começou o que dá pra fazer". Sem color-mix nem nesting, igual ao resto do
+     arquivo: o tráfego aqui é celular frio.
+
+     Referência de comprimento: produto abaixo de US$100 pede página de 600 a
+     1.000 palavras. Bloco novo entra olhando esse teto, não só o gosto. */
+  .oferta-bloco { margin: 34px 0 0; }
+  .oferta-bloco:first-of-type { margin-top: 28px; }
+  .oferta-h { font-size: 23px; line-height: 1.28; margin: 0 0 12px; }
+  .oferta-p { font-size: 15.5px; line-height: 1.6; margin: 0 0 14px; }
+  .oferta-nota { font-size: 13px; line-height: 1.5; opacity: .62; margin: 12px 0 0; }
+  .oferta-legenda { font-family: var(--font-label); font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; opacity: .6; margin: 0 0 10px; }
+
+  /* A espiada no conteúdo. Os títulos borrados são capítulos REAIS: borrar
+     dado de verdade vale mais que placeholder genérico. `user-select: none` e
+     `aria-hidden` no HTML pra que o texto borrado não seja copiável nem lido
+     por leitor de tela, que o entregaria de graça. */
+  .oferta-espia {
+    background: var(--surface);
+    border: 1px solid rgba(217, 168, 84, .35);
+    border-radius: 16px;
+    padding: 18px 18px 14px;
+    margin-bottom: 18px;
+  }
+  .oferta-sumario { margin: 0; padding-left: 20px; }
+  .oferta-sumario li { font-size: 14.5px; line-height: 1.45; margin-bottom: 8px; }
+  .oferta-borrado {
+    filter: blur(3.6px);
+    opacity: .75;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .oferta-promessas { list-style: none; margin: 0; padding: 0; }
+  .oferta-promessas li {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 13px;
+    font-size: 16px;
+    line-height: 1.45;
+  }
+  .oferta-promessas li::before {
+    content: '\2192';
+    position: absolute; left: 0; top: 0;
+    color: var(--gold); font-weight: 700;
+  }
+
+  .oferta-entrega { list-style: none; margin: 0; padding: 0; }
+  .oferta-entrega li {
+    position: relative;
+    padding-left: 26px;
+    margin-bottom: 14px;
+  }
+  .oferta-entrega li::before {
+    content: '\2713';
+    position: absolute; left: 0; top: 1px;
+    color: var(--gold); font-weight: 700;
+  }
+  .oferta-entrega b { display: block; font-size: 15.5px; margin-bottom: 2px; }
+  .oferta-entrega span { display: block; font-size: 14px; line-height: 1.45; opacity: .72; }
+
+  .oferta-bonus {
+    margin-top: 18px;
+    padding: 16px 18px 6px;
+    border: 1px dashed rgba(217, 168, 84, .55);
+    border-radius: 16px;
+  }
+  .oferta-bonus-selo { font-family: var(--font-label); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+  .oferta-bonus-nome { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 20px; margin: 0 0 8px; }
+
+  /* O preço tem seção própria e centrada: é o único bloco que a pessoa procura
+     rolando, e procurar preço dentro de parágrafo é motivo de saída. */
+  .oferta-preco-bloco {
+    text-align: center;
     background: var(--surface);
     border: 1px solid rgba(217, 168, 84, .45);
     border-radius: 20px;
-    padding: 22px 20px 18px;
+    padding: 24px 20px 20px;
     box-shadow: 0 18px 36px -24px var(--shadow-tint);
   }
-  .oferta-nome { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 25px; line-height: 1.2; margin: 0 0 6px; }
-  .oferta-promessa { font-size: 15px; line-height: 1.55; margin: 0 0 18px; opacity: .82; }
-  .oferta-inclusos { list-style: none; margin: 0 0 20px; padding: 0; }
-  .oferta-inclusos li { position: relative; padding-left: 26px; margin-bottom: 11px; font-size: 14.5px; line-height: 1.45; }
-  .oferta-inclusos li:last-child { margin-bottom: 0; }
-  .oferta-inclusos li::before { content: '\2713'; position: absolute; left: 0; top: 0; color: var(--gold); font-weight: 700; }
-  .oferta-preco { text-align: center; margin: 0 0 4px; font-family: var(--font-display); }
+  .oferta-preco { margin: 0 0 4px; font-family: var(--font-display); }
   .oferta-preco s { font-size: 19px; opacity: .42; }
-  .oferta-preco b { font-size: 34px; font-weight: 700; font-style: italic; color: var(--accent); margin-left: 9px; }
-  .oferta-selo { text-align: center; font-family: var(--font-label); font-size: 12.5px; letter-spacing: .03em; opacity: .58; margin: 0 0 18px; }
-  .oferta-card .btn { width: 100%; }
-  .oferta-card .disclaimer { text-align: center; margin-bottom: 0; }
+  .oferta-preco b { font-size: 38px; font-weight: 700; font-style: italic; color: var(--accent); margin-left: 9px; }
+  .oferta-selo { font-family: var(--font-label); font-size: 12.5px; letter-spacing: .03em; opacity: .58; margin: 0 0 16px; }
+
+  .oferta-faq-item {
+    border-bottom: 1px solid rgba(69, 61, 87, .12);
+    padding: 12px 0;
+  }
+  .oferta-faq-item summary {
+    cursor: pointer;
+    font-size: 15.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    list-style: none;
+  }
+  .oferta-faq-item summary::-webkit-details-marker { display: none; }
+  .oferta-faq-item summary::after { content: '+'; float: right; color: var(--gold); font-weight: 700; margin-left: 12px; }
+  .oferta-faq-item[open] summary::after { content: '\2013'; }
+  .oferta-faq-item p { margin: 10px 0 2px; font-size: 14.5px; line-height: 1.55; opacity: .8; }
+
+  .oferta-fim { text-align: center; margin-top: 40px; }
+
+  /* Tarja de rascunho. Existe porque tem bloco aqui cujo conteúdo NÃO EXISTE
+     (bônus não definido, zero depoimentos porque o produto nunca foi vendido,
+     bio da Ge). Sem ela, alguém publica o texto de instrução achando que é
+     copy. Vermelha e fora do tema de propósito: não é pra combinar. */
+  .oferta-ph {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(179, 69, 63, .14);
+    color: var(--error);
+    font-family: var(--font-label);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    vertical-align: 2px;
+  }
+
+  .oferta-bloco .btn { width: 100%; margin-top: 6px; }
 
   /* ---------- mobile-first: ajustes pra telas estreitas (iPhone SE/mini, ~360-390px) ---------- */
   @media (max-width: 380px) {
@@ -360,9 +461,10 @@
     .loading-ring-wrap { width: 108px; height: 108px; }
     .img-badge { max-width: 160px; }
     .result-orb { max-width: 116px; }
-    .oferta-nome { font-size: 22px; }
-    .oferta-preco b { font-size: 30px; }
-    .oferta-ponte h2 { font-size: 20px; }
+    .oferta-h { font-size: 20px; }
+    .oferta-preco b { font-size: 32px; }
+    .oferta-bonus-nome { font-size: 18px; }
+    .oferta-promessas li { font-size: 15px; }
   }
 </style>
 <script src="../assets/posthog-init.js"></script>
@@ -582,12 +684,19 @@
         '</div>' +
       '</div>';
     },
-    // O paywall do V2 (18/09/2026). O diagnóstico continua de graça e aparece
-    // aqui inteiro, no mesmo card do `resultado`: o que está atrás do botão não
-    // é o resultado, é o Método Cálice. Cobrar pelo resultado depois de o quiz
-    // prometer "descubra o seu em 8 perguntas" seria trocar a regra no fim.
+    /* O paywall (18/09/2026, reescrito no mesmo dia em blocos).
+
+       Nasceu como um card só, e um card só não vende: página de venda tem
+       anatomia, e o Yan cobrou isso com razão. Agora são blocos declarados no
+       `variantes.json`, na ordem em que aparecem, e este arquivo só sabe
+       desenhar cada TIPO de bloco. Bloco novo no JSON sem tipo conhecido aqui
+       é ignorado em silêncio de propósito: melhor faltar um bloco do que a tela
+       inteira cair no meio de uma venda.
+
+       O diagnóstico completo continua em cima, de graça. O que está à venda é o
+       Método Cálice, e ele começa depois do card escuro. */
     oferta: function (t) {
-      var p = t.produto;
+      var blocos = (t.blocos || []).map(function (b) { return BLOCO[b.tipo] ? BLOCO[b.tipo](b, t) : ''; }).join('');
       return '<div data-step>' +
         '<div class="wrap">' +
           '<div class="media-frame img-badge"><img id="ofertaBadgeImg" src="" alt="" /></div>' +
@@ -596,22 +705,7 @@
             '<h1 class="result-archetype" id="ofertaArchetype"></h1>' +
             '<div class="result-body" id="ofertaBody"></div>' +
           '</div>' +
-          '<div class="oferta-ponte">' +
-            '<h2>' + t.ponteTitulo + '</h2>' +
-            '<p id="ofertaGancho"></p>' +
-            '<p>' + t.ponteTexto + '</p>' +
-          '</div>' +
-          '<div class="oferta-card">' +
-            '<p class="oferta-nome">' + esc(p.nome) + '</p>' +
-            '<p class="oferta-promessa">' + esc(p.promessa) + '</p>' +
-            '<ul class="oferta-inclusos">' +
-              p.inclusos.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') +
-            '</ul>' +
-            '<p class="oferta-preco"><s>' + esc(p.precoDe) + '</s><b>' + esc(p.precoPor) + '</b></p>' +
-            '<p class="oferta-selo">' + esc(p.selo) + '</p>' +
-            '<a class="btn btn-pulse" id="btnOferta" href="#">' + esc(p.botao) + '</a>' +
-            (p.garantia ? '<p class="disclaimer">' + esc(p.garantia) + '</p>' : '') +
-          '</div>' +
+          blocos +
         '</div>' +
       '</div>';
     },
@@ -627,6 +721,125 @@
           '<a class="btn" id="btnMaterial" href="#">' + esc(t.botao) + '</a>' +
         '</div>' +
       '</div>';
+    }
+  };
+
+  /* Um desenho por tipo de bloco do paywall.
+
+     `placeholder: true` em qualquer bloco (ou num item dele) desenha uma
+     tarja visível. É de propósito e não é enfeite de dev: há blocos aqui cujo
+     conteúdo NÃO EXISTE ainda (bônus não definido, zero depoimentos porque o
+     produto nunca foi vendido, bio da Ge). Sem a tarja, alguém publica o
+     lorem ipsum achando que é copy. Variante com tarja não pode virar `ativa`. */
+  function tarja(b) {
+    return b && b.placeholder ? '<span class="oferta-ph">rascunho</span>' : '';
+  }
+
+  function botao(texto) {
+    return '<a class="btn btn-pulse js-oferta-cta" href="#">' + esc(texto) + '</a>';
+  }
+
+  var BLOCO = {
+    /* Curiosidade. O gancho NÃO é o diagnóstico (esse a pessoa acabou de ler de
+       graça, borrá-lo não gera curiosidade nenhuma): é o conteúdo do programa.
+       Os títulos borrados são os capítulos REAIS do livro, não placeholder.
+       Ver o conceito de dado real borrado no vault. */
+    curiosidade: function (b, t) {
+      var visiveis = (b.listaVisivel || []).map(function (x) {
+        return '<li>' + esc(x) + '</li>';
+      }).join('');
+      var borrados = (b.listaBorrada || []).map(function (x) {
+        return '<li class="oferta-borrado" aria-hidden="true">' + esc(x) + '</li>';
+      }).join('');
+      return '<section class="oferta-bloco">' +
+        '<h2 class="oferta-h">' + b.titulo + '</h2>' +
+        '<p class="oferta-p">' + esc(b.texto) + '</p>' +
+        (visiveis || borrados
+          ? '<div class="oferta-espia">' +
+              '<p class="oferta-legenda">' + esc(b.legendaLista) + '</p>' +
+              '<ol class="oferta-sumario">' + visiveis + borrados + '</ol>' +
+            '</div>'
+          : '') +
+        (b.cta ? botao(t.ctaTexto) : '') +
+      '</section>';
+    },
+
+    /* Promessa. O `<ul>` nasce vazio e é preenchido por arquétipo em
+       populateOferta: é o único lugar do paywall onde as 8 perguntas que a
+       pessoa acabou de responder viram argumento de venda. Promessa genérica
+       aqui jogaria o quiz inteiro fora. */
+    promessa: function (b) {
+      return '<section class="oferta-bloco">' +
+        '<h2 class="oferta-h">' + esc(b.titulo) + '</h2>' +
+        '<ul class="oferta-promessas" id="ofertaPromessas"></ul>' +
+        (b.rodape ? '<p class="oferta-nota">' + esc(b.rodape) + '</p>' : '') +
+      '</section>';
+    },
+
+    entrega: function (b) {
+      var itens = (b.itens || []).map(function (i) {
+        return '<li><b>' + esc(i.nome) + '</b><span>' + esc(i.texto) + '</span></li>';
+      }).join('');
+      var bonus = b.bonus
+        ? '<div class="oferta-bonus">' +
+            '<p class="oferta-bonus-selo">' + esc(b.bonus.selo) + tarja(b.bonus) + '</p>' +
+            '<p class="oferta-bonus-nome">' + esc(b.bonus.nome) + '</p>' +
+            '<p class="oferta-p">' + esc(b.bonus.texto) + '</p>' +
+          '</div>'
+        : '';
+      return '<section class="oferta-bloco">' +
+        '<h2 class="oferta-h">' + esc(b.titulo) + '</h2>' +
+        '<ul class="oferta-entrega">' + itens + '</ul>' +
+        bonus +
+      '</section>';
+    },
+
+    preco: function (b, t) {
+      return '<section class="oferta-bloco oferta-preco-bloco">' +
+        '<p class="oferta-legenda">' + esc(b.titulo) + '</p>' +
+        '<p class="oferta-preco"><s>' + esc(b.precoDe) + '</s><b>' + esc(b.precoPor) + '</b></p>' +
+        '<p class="oferta-selo">' + esc(b.selo) + '</p>' +
+        (b.apoio ? '<p class="oferta-nota">' + esc(b.apoio) + '</p>' : '') +
+        (b.cta ? botao(t.ctaTexto) : '') +
+        (b.garantia ? '<p class="oferta-nota">' + esc(b.garantia) + '</p>' : '') +
+      '</section>';
+    },
+
+    prova: function (b) {
+      return '<section class="oferta-bloco">' +
+        '<h2 class="oferta-h">' + esc(b.titulo) + tarja(b) + '</h2>' +
+        '<p class="oferta-p">' + esc(b.texto) + '</p>' +
+      '</section>';
+    },
+
+    /* FAQ é bloco de objecão, não de dúvida técnica: cada pergunta aqui é um
+       motivo pra não comprar, dito na voz de quem não comprou. */
+    faq: function (b) {
+      var itens = (b.itens || []).map(function (i) {
+        return '<details class="oferta-faq-item">' +
+          '<summary>' + esc(i.p) + tarja(i) + '</summary>' +
+          '<p>' + esc(i.r) + '</p>' +
+        '</details>';
+      }).join('');
+      return '<section class="oferta-bloco">' +
+        '<h2 class="oferta-h">' + esc(b.titulo) + '</h2>' +
+        itens +
+      '</section>';
+    },
+
+    autora: function (b) {
+      return '<section class="oferta-bloco">' +
+        '<h2 class="oferta-h">' + esc(b.titulo) + tarja(b) + '</h2>' +
+        '<p class="oferta-p">' + esc(b.texto) + '</p>' +
+      '</section>';
+    },
+
+    fechamento: function (b, t) {
+      return '<section class="oferta-bloco oferta-fim">' +
+        '<h2 class="oferta-h">' + b.titulo + '</h2>' +
+        '<p class="oferta-p">' + esc(b.texto) + '</p>' +
+        (b.cta ? botao(t.ctaTexto) : '') +
+      '</section>';
     }
   };
 
@@ -961,10 +1174,9 @@
       document.getElementById('btnMaterial').href = '/material?r=' + result;
     }
 
-    // O paywall. Recebe o mesmo corpo do resultado (o diagnóstico é grátis) e
-    // mais o gancho daquele arquétipo, que é a única frase da oferta que muda
-    // por pessoa: a dor do Aprovador não é a do Controlador, e uma oferta que
-    // fala das duas não fala de nenhuma.
+    // O paywall. O diagnóstico é o mesmo corpo do resultado (continua grátis) e
+    // as promessas são por arquétipo: a dor do Aprovador não é a do Controlador,
+    // e uma oferta que fala das duas não fala de nenhuma.
     function populateOferta(result) {
       var tela = telaDoTipo.oferta;
       if (!tela) return;
@@ -973,8 +1185,19 @@
       document.getElementById('ofertaArchetype').textContent = r.label;
       document.getElementById('ofertaBody').innerHTML =
         r.corpo.map(function (par) { return '<p>' + par + '</p>'; }).join('');
-      document.getElementById('ofertaGancho').textContent = r.ofertaGancho || '';
-      document.getElementById('btnOferta').href = urlCheckout(tela.produto.url, result);
+
+      var ul = document.getElementById('ofertaPromessas');
+      if (ul) {
+        ul.innerHTML = (r.promessas || []).map(function (x) {
+          return '<li>' + esc(x) + '</li>';
+        }).join('');
+      }
+
+      // Um CTA só, repetido ao longo da rolagem (3 vezes hoje). Todos apontam
+      // pro mesmo lugar: link diferente no meio do caminho é fuga.
+      var url = urlCheckout(tela.ctaUrl, result);
+      var botoes = document.querySelectorAll('.js-oferta-cta');
+      for (var i = 0; i < botoes.length; i++) botoes[i].href = url;
     }
 
     // O checkout mora em OUTRO domínio (serena-app), então nada do localStorage
@@ -996,14 +1219,20 @@
     // vê desta pessoa. `offer_cta_clicked` é a etapa que fecha o funil do V2, que
     // não tem `lead_submitted` nenhum pra contar.
     (function setupOferta() {
-      var btn = document.getElementById('btnOferta');
-      if (!btn) return;
-      btn.addEventListener('click', function () {
-        phTrack('offer_cta_clicked', {
-          archetype: localStorage.getItem('quiz_result') || null,
-          quiz_variant: variante.id
-        });
-      });
+      var botoes = document.querySelectorAll('.js-oferta-cta');
+      for (var i = 0; i < botoes.length; i++) {
+        (function (btn, posicao) {
+          btn.addEventListener('click', function () {
+            phTrack('offer_cta_clicked', {
+              archetype: localStorage.getItem('quiz_result') || null,
+              quiz_variant: variante.id,
+              // Qual das cópias do botão converteu: se o de cima nunca for
+              // clicado, ele está cedo demais na página.
+              cta_posicao: posicao
+            });
+          });
+        })(botoes[i], i + 1);
+      }
     })();
 
     var btnToCapture = document.getElementById('btnToCapture');

@@ -8,6 +8,11 @@
     "Aceitam HTML simples (<em>, <span class=\"mark\">): abertura.titulo, abertura.subtitulo, abertura.texto, revelacao.texto, oferta.ponteTitulo, oferta.ponteTexto e resultados.*.corpo. Todo o resto é texto puro.",
     "Tipos de tela: abertura, nome, pergunta, pausa, calculando, revelacao, captura, resultado, oferta. Tipo novo exige código no quiz/index.html.",
     "oferta é o paywall (18/09/2026): mostra o diagnóstico completo de graça e vende o Método Cálice. Uma variante ou tem captura ou tem oferta, nunca as duas: as duas cobrariam pedágio pela mesma tela e a segunda leria como troca de regra no fim.",
+    "A oferta é uma lista de blocos em ordem, e cada bloco tem um tipo que o quiz/index.html sabe desenhar: curiosidade, promessa, entrega, preco, prova, faq, autora, fechamento. Reordenar = mover o bloco na lista. Bloco de tipo desconhecido é ignorado em silêncio, pra tela nenhuma cair no meio de uma venda.",
+    "Os bullets do bloco promessa NÃO ficam no bloco: ficam em resultados.<arquetipo>.promessas, porque são a única parte da oferta que muda por pessoa. É onde as 8 perguntas viram argumento de venda.",
+    "cta: true em qualquer bloco desenha o botão. O texto e a URL são os mesmos pra todos (oferta.ctaTexto e oferta.ctaUrl): um CTA só, repetido 3 vezes ao longo da rolagem. Link diferente no meio do caminho é fuga.",
+    "placeholder: true num bloco (ou num item de faq, ou no bonus) desenha uma tarja vermelha de rascunho. NÃO É ENFEITE: marca conteúdo que ainda NÃO EXISTE (bônus não definido, zero depoimentos porque o produto nunca foi vendido, bio da Ge). Variante com qualquer tarja não pode virar ativa.",
+    "Comprimento: referência de página de venda para produto abaixo de US$100 é 600 a 1.000 palavras. Em 18/09/2026 o paywall mais o diagnóstico davam 686. Bloco novo entra olhando esse teto."
     "produto.garantia vazia não desenha nada. Está vazia de propósito até o Yan decidir se existe garantia, porque inventar política de reembolso em copy é promessa que alguém vai ter que honrar.",
     "O arquétipo de cada opção vem de 'arquetipo', não da posição. Os slugs precisam existir em 'resultados' e em VALID_RESULTS do api/subscribe.js, e o material/index.html abre por eles.",
     "Imagens em assets/img/. Imagem nova entra lá antes de ser citada aqui."
@@ -434,30 +439,136 @@
           "rotulo": "Diagnóstico e oferta",
           "tipo": "oferta",
           "sobretitulo": "Seu código instalado é:",
-          "ponteTitulo": "O que foi instalado pode ser <span class=\"mark\">desinstalado</span>.",
-          "ponteTexto": "Saber o nome do seu código é a metade que dói. A outra metade é o caminho de volta, e é exatamente isso que o Método Cálice é: entender como a crença entrou, e depois desmontar ela, um dia de cada vez.",
-          "produto": {
-            "nome": "Método Cálice",
-            "promessa": "O livro que explica como o seu código foi instalado, e 10 dias de prática guiada pra desinstalar ele.",
-            "inclusos": [
-              "O livro completo, 13 capítulos, com \"Como as Crenças se Instalam Sem Você Perceber\" e \"Como Desinstalar o Que é Invisível\"",
-              "10 Dias de Prática Guiada, do Detox Mental até a Integração",
-              "Notas pessoais por capítulo, pra registrar o que for aparecendo no caminho",
-              "Acesso vitalício, no seu ritmo, sem turma e sem prazo"
-            ],
-            "precoDe": "R$341",
-            "precoPor": "R$37",
-            "selo": "turma fundadora · Pix · acesso imediato",
-            "botao": "Quero desinstalar esse código",
-            "url": "https://serena-app-lac.vercel.app/comprar/metodo-calice",
-            "garantia": ""
-          }
+          "ctaTexto": "Quero desinstalar esse código",
+          "ctaUrl": "https://serena-app-lac.vercel.app/comprar/metodo-calice",
+          "blocos": [
+            {
+              "tipo": "curiosidade",
+              "titulo": "Você já sabe o nome do que trava. <span class=\"mark\">Agora dá pra desinstalar.</span>",
+              "texto": "O diagnóstico acima é o começo. O Método Cálice é o caminho inteiro: entender como a crença foi instalada e desmontar ela, um dia de cada vez.",
+              "legendaLista": "O livro, 13 capítulos",
+              "listaVisivel": [
+                "Por Que Sua Mente Está no Piloto Automático?",
+                "Por Que Mudar é Difícil?",
+                "O Papel da Intuição"
+              ],
+              "listaBorrada": [
+                "O Campo Energético e a Ressonância",
+                "Como Funciona a Reprogramação",
+                "O Ritmo da Mudança e a Maestria",
+                "Quando a Realidade Começa a Mudar",
+                "A Reprogramação de Verdade",
+                "O Subconsciente e a Voz Invisível",
+                "Como as Crenças se Instalam Sem Você Perceber",
+                "Como Desinstalar o Que é Invisível",
+                "Como a Energia do Ambiente Molda Sua Mente"
+              ],
+              "cta": true
+            },
+            {
+              "tipo": "promessa",
+              "titulo": "O que muda, no seu caso",
+              "rodape": "Não é sobre virar outra pessoa. É sobre parar de obedecer um código que alguém instalou em você."
+            },
+            {
+              "tipo": "entrega",
+              "titulo": "O que você recebe",
+              "itens": [
+                {
+                  "nome": "O livro completo",
+                  "texto": "13 capítulos, da mente no automático até como desinstalar o que é invisível."
+                },
+                {
+                  "nome": "10 Dias de Prática Guiada",
+                  "texto": "Do Detox Mental à Integração. Um dia por vez, no seu ritmo."
+                },
+                {
+                  "nome": "Notas pessoais por capítulo",
+                  "texto": "Pra registrar o que for aparecendo, onde o conteúdo está."
+                },
+                {
+                  "nome": "Acesso vitalício",
+                  "texto": "Sem turma, sem prazo, sem assinatura."
+                }
+              ],
+              "bonus": {
+                "selo": "Bônus",
+                "nome": "[PLACEHOLDER] Nome do bônus",
+                "texto": "[PLACEHOLDER] O que é e por que vale. Candidato de custo zero: “O Código Invisível”, o material que hoje é isca grátis do V1 e que no V2 ninguém mais recebe.",
+                "placeholder": true
+              }
+            },
+            {
+              "tipo": "preco",
+              "titulo": "Turma fundadora",
+              "precoDe": "R$341",
+              "precoPor": "R$37",
+              "selo": "Pix · acesso imediato · vitalício",
+              "apoio": "R$341 é a soma do que o material vale separado. R$37 é o preço de quem entra antes de existir depoimento.",
+              "garantia": "",
+              "cta": true
+            },
+            {
+              "tipo": "prova",
+              "titulo": "[PLACEHOLDER] Prova",
+              "texto": "[PLACEHOLDER] O Método Cálice nunca foi vendido: zero compras reais no banco. Não existe depoimento pra pôr aqui e inventar um seria fraude. Duas saídas honestas: (1) este bloco não existe até a primeira turma responder, ou (2) vira prova da GE (formação, história, audiência) em vez de prova de cliente. Decisão do Yan.",
+              "placeholder": true
+            },
+            {
+              "tipo": "faq",
+              "titulo": "Antes de decidir",
+              "itens": [
+                {
+                  "p": "É texto ou vídeo?",
+                  "r": "Hoje é escrito, pra você ler no seu ritmo e voltar quando quiser."
+                },
+                {
+                  "p": "Quanto tempo leva?",
+                  "r": "Os 10 dias pedem alguns minutos por dia. O livro você lê quando der: o acesso é vitalício e não expira."
+                },
+                {
+                  "p": "Preciso fazer os 10 dias seguidos?",
+                  "r": "Não. Seguidos ajuda, porque um dia prepara o outro, mas ninguém perde acesso por atrasar."
+                },
+                {
+                  "p": "Serve pro meu arquétipo específico?",
+                  "r": "O mecanismo é o mesmo pros quatro: como a crença foi instalada e como se desinstala. O que muda é onde você vai reconhecer a sua."
+                },
+                {
+                  "p": "[PLACEHOLDER] E se não funcionar pra mim?",
+                  "r": "[PLACEHOLDER] Depende da decisão de garantia, que está em aberto. A pesquisa diz que reversão de risco é o item de maior alavanca em tráfego frio, e política de reembolso é promessa que alguém honra.",
+                  "placeholder": true
+                },
+                {
+                  "p": "Como recebo?",
+                  "r": "Pix. O acesso abre sozinho assim que o pagamento cai."
+                }
+              ]
+            },
+            {
+              "tipo": "autora",
+              "titulo": "[PLACEHOLDER] Quem escreveu",
+              "texto": "[PLACEHOLDER] Bio da Ge: formação, história e por que ela escreveu isto. Ela é a dona do produto e quem assina, então o texto tem que sair dela ou ser validado por ela antes de ir pro ar.",
+              "placeholder": true
+            },
+            {
+              "tipo": "fechamento",
+              "titulo": "O código foi instalado sem você escolher. <span class=\"mark\">Desinstalar é escolha.</span>",
+              "texto": "R$37, Pix, acesso na hora. Vitalício.",
+              "cta": true
+            }
+          ]
         }
       ],
       "resultados": {
         "aprovador": {
           "label": "O Aprovador",
           "img": "badge-aprovador.webp",
+          "promessas": [
+            "Dizer não sem passar o resto do dia remoendo",
+            "Perceber que está se ajustando ANTES de já ter se ajustado",
+            "Escolher pelo que você quer, não pelo que evita decepcionar"
+          ],
           "ofertaGancho": "No seu caso, o trabalho começa em conseguir dizer não sem sentir que vai perder alguém.",
           "corpo": [
             "Você aprendeu cedo que agradar é mais seguro do que ser você.",
@@ -469,6 +580,11 @@
         "sabotador": {
           "label": "O Sabotador",
           "img": "badge-sabotador.webp",
+          "promessas": [
+            "Chegar perto sem derrubar na última hora",
+            "Ouvir “você não merece” como uma voz antiga, não como verdade",
+            "Terminar uma coisa que você começou"
+          ],
           "ofertaGancho": "No seu caso, o trabalho começa em separar o medo de chegar lá do medo do que vem depois.",
           "corpo": [
             "Você deseja. Planeja. Começa. E na hora H, algo te puxa de volta.",
@@ -480,6 +596,11 @@
         "ausente": {
           "label": "O Ausente",
           "img": "badge-ausente.webp",
+          "promessas": [
+            "Saber o que você quer antes de alguém perguntar",
+            "Sentir o dia enquanto ele acontece, não depois",
+            "Voltar a ter opinião sobre a própria vida"
+          ],
           "ofertaGancho": "No seu caso, o trabalho começa em voltar a sentir antes de decidir.",
           "corpo": [
             "Você está presente em tudo. No trabalho, nas relações, nas obrigações.",
@@ -491,6 +612,11 @@
         "controlador": {
           "label": "O Controlador",
           "img": "badge-controlador.webp",
+          "promessas": [
+            "Soltar uma coisa e descobrir que nada desmorona",
+            "Dormir sem revisar o dia seguinte inteiro",
+            "Decidir com 70% de certeza, em vez de esperar 100%"
+          ],
           "ofertaGancho": "No seu caso, o trabalho começa em soltar uma coisa pequena e descobrir que nada desmorona.",
           "corpo": [
             "Você aprendeu que o mundo não é seguro quando as coisas saem do seu controle.",
