@@ -426,7 +426,18 @@
   // Nome como prefixo natural ("Bianca, você não está só nisso."), com a
   // primeira letra do texto em minúscula no encaixe. Sem nome, o texto puro.
   // Mesmo padrão de sempre em captura, revelação, pausas e perguntas 7 e 8.
+  //
+  // `variantePedeNome` existe desde 18/09/2026, quando o V2 passou a não ter
+  // tela de nome. Desligar `usaNome`/`ecoaNome` no JSON NÃO bastava: a
+  // revelação chama `comNome` direto, sem ler flag nenhum, e o `quiz_name`
+  // sobrevive no localStorage de uma passagem por OUTRA variante. Quem tivesse
+  // feito o V1 antes veria o V2 cumprimentá-la por um nome que ele nunca pediu.
+  // A guarda mora aqui, e não em cada chamada, pra valer também pra chamada que
+  // alguém escrever depois. Achado pelo Yan.
+  var variantePedeNome = true;
+
   function comNome(texto) {
+    if (!variantePedeNome) return texto;
     var nome = localStorage.getItem('quiz_name') || '';
     return nome ? nome + ', ' + texto.charAt(0).toLowerCase() + texto.slice(1) : texto;
   }
@@ -657,6 +668,8 @@
   // ---------- Runtime do funil (ver .claude/skills/quiz-funnel-designer/SKILL.md) ----------
   function iniciar(variante) {
     var telas = variante.telas;
+    // A variante só pode usar nome se ela mesma tiver pedido o nome.
+    variantePedeNome = telas.some(function (t) { return t.tipo === 'nome'; });
     var resultados = variante.resultados;
     var arquetipos = Object.keys(resultados); // ordem do JSON = ordem de desempate
     var totalPerguntas = telas.filter(function (t) { return t.tipo === 'pergunta'; }).length;
