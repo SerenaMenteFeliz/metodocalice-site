@@ -286,15 +286,15 @@
           ]
         },
         {
-          "id": "p2",
-          "rotulo": "Perto de conseguir",
+          "id": "p4",
+          "rotulo": "Receber elogio",
           "tipo": "pergunta",
-          "texto": "Quando está muito perto de alcançar algo importante, o que acontece?",
+          "texto": "Quando recebe um elogio genuíno, você:",
           "opcoes": [
-            { "texto": "Me preocupo com o que os outros vão achar", "emoji": "👀", "arquetipo": "aprovador" },
-            { "texto": "Começo a me perguntar se mereço realmente", "emoji": "❓", "arquetipo": "sabotador" },
-            { "texto": "Percebo que nem sei mais o que queria de verdade", "emoji": "🌫️", "arquetipo": "ausente" },
-            { "texto": "A ansiedade bate e eu começo a controlar cada detalhe", "emoji": "🎯", "arquetipo": "controlador" }
+            { "texto": "Fica feliz mas logo pensa \"será que foi sincero?\"", "emoji": "🤔", "arquetipo": "aprovador" },
+            { "texto": "Desvia o assunto ou minimiza", "emoji": "🙈", "arquetipo": "sabotador" },
+            { "texto": "Sente pouca coisa, como se não chegasse até você", "emoji": "🫥", "arquetipo": "ausente" },
+            { "texto": "Aceita mas já começa a se cobrar pra manter o padrão", "emoji": "📈", "arquetipo": "controlador" }
           ]
         },
         {
@@ -319,16 +319,25 @@
           ]
         },
         {
-          "id": "p4",
-          "rotulo": "Receber elogio",
+          "id": "p6",
+          "rotulo": "Fim do dia",
           "tipo": "pergunta",
-          "texto": "Quando recebe um elogio genuíno, você:",
+          "texto": "No final de um dia comum, você geralmente sente:",
           "opcoes": [
-            { "texto": "Fica feliz mas logo pensa \"será que foi sincero?\"", "emoji": "🤔", "arquetipo": "aprovador" },
-            { "texto": "Desvia o assunto ou minimiza", "emoji": "🙈", "arquetipo": "sabotador" },
-            { "texto": "Sente pouca coisa, como se não chegasse até você", "emoji": "🫥", "arquetipo": "ausente" },
-            { "texto": "Aceita mas já começa a se cobrar pra manter o padrão", "emoji": "📈", "arquetipo": "controlador" }
+            { "texto": "Que fez tudo pelos outros mas esqueceu de você", "emoji": "💔", "arquetipo": "aprovador" },
+            { "texto": "Um vazio difícil de nomear", "emoji": "🕳️", "arquetipo": "sabotador" },
+            { "texto": "Que devia ter feito mais, aproveitado mais", "emoji": "⏰", "arquetipo": "ausente" },
+            { "texto": "Que as coisas não saíram exatamente como planejou", "emoji": "📋", "arquetipo": "controlador" }
           ]
+        },
+        {
+          "id": "pausa-2",
+          "rotulo": "Lugar mais fundo",
+          "tipo": "pausa",
+          "imagem": "bridge-raizes.webp",
+          "texto": "As próximas perguntas tocam num lugar mais fundo. Não existe resposta certa, só a que for mais verdadeira pra você agora.",
+          "usaNome": false,
+          "botao": "Continuar"
         },
         {
           "id": "p5",
@@ -343,25 +352,25 @@
           ]
         },
         {
-          "id": "pausa-2",
-          "rotulo": "Lugar mais fundo",
-          "tipo": "pausa",
-          "imagem": "bridge-raizes.webp",
-          "texto": "As próximas perguntas tocam num lugar mais fundo. Não existe resposta certa, só a que for mais verdadeira pra você agora.",
-          "usaNome": false,
-          "botao": "Continuar"
+          "id": "p2",
+          "rotulo": "Perto de conseguir",
+          "tipo": "pergunta",
+          "texto": "Quando está muito perto de alcançar algo importante, o que acontece?",
+          "opcoes": [
+            { "texto": "Me preocupo com o que os outros vão achar", "emoji": "👀", "arquetipo": "aprovador" },
+            { "texto": "Começo a me perguntar se mereço realmente", "emoji": "❓", "arquetipo": "sabotador" },
+            { "texto": "Percebo que nem sei mais o que queria de verdade", "emoji": "🌫️", "arquetipo": "ausente" },
+            { "texto": "A ansiedade bate e eu começo a controlar cada detalhe", "emoji": "🎯", "arquetipo": "controlador" }
+          ]
         },
         {
-          "id": "p6",
-          "rotulo": "Fim do dia",
-          "tipo": "pergunta",
-          "texto": "No final de um dia comum, você geralmente sente:",
-          "opcoes": [
-            { "texto": "Que fez tudo pelos outros mas esqueceu de você", "emoji": "💔", "arquetipo": "aprovador" },
-            { "texto": "Um vazio difícil de nomear", "emoji": "🕳️", "arquetipo": "sabotador" },
-            { "texto": "Que devia ter feito mais, aproveitado mais", "emoji": "⏰", "arquetipo": "ausente" },
-            { "texto": "Que as coisas não saíram exatamente como planejou", "emoji": "📋", "arquetipo": "controlador" }
-          ]
+          "id": "pausa-3",
+          "rotulo": "Falta uma pergunta",
+          "tipo": "pausa",
+          "imagem": "bridge-flor.webp",
+          "texto": "Nomear o que você sente já é o primeiro movimento de mudança. Faltam só mais duas.",
+          "usaNome": false,
+          "botao": "Continuar"
         },
         {
           "id": "p7",
@@ -375,15 +384,6 @@
             { "texto": "Sem saída", "emoji": "🔒", "arquetipo": "ausente" },
             { "texto": "Sem paz", "emoji": "🌪️", "arquetipo": "controlador" }
           ]
-        },
-        {
-          "id": "pausa-3",
-          "rotulo": "Falta uma pergunta",
-          "tipo": "pausa",
-          "imagem": "bridge-flor.webp",
-          "texto": "Nomear o que você sente já é o primeiro movimento de mudança. Falta só mais uma pergunta.",
-          "usaNome": false,
-          "botao": "Continuar"
         },
         {
           "id": "p8",
