@@ -12,7 +12,7 @@
     "Os bullets do bloco promessa NÃO ficam no bloco: ficam em resultados.<arquetipo>.promessas, porque são a única parte da oferta que muda por pessoa. É onde as 8 perguntas viram argumento de venda.",
     "cta: true em qualquer bloco desenha o botão. O texto e a URL são os mesmos pra todos (oferta.ctaTexto e oferta.ctaUrl): um CTA só, repetido 3 vezes ao longo da rolagem. Link diferente no meio do caminho é fuga.",
     "placeholder: true num bloco (ou num item de faq, ou no bonus) desenha uma tarja vermelha de rascunho. NÃO É ENFEITE: marca conteúdo que ainda NÃO EXISTE (bônus não definido, zero depoimentos porque o produto nunca foi vendido, bio da Ge). Variante com qualquer tarja não pode virar ativa.",
-    "Comprimento: referência de página de venda para produto abaixo de US$100 é 600 a 1.000 palavras. Em 18/09/2026 o paywall mais o diagnóstico davam 686. Bloco novo entra olhando esse teto."
+    "Comprimento: referência de página de venda para produto abaixo de US$100 é 600 a 1.000 palavras. Em 18/09/2026 o paywall mais o diagnóstico davam 686. Bloco novo entra olhando esse teto.",
     "produto.garantia vazia não desenha nada. Está vazia de propósito até o Yan decidir se existe garantia, porque inventar política de reembolso em copy é promessa que alguém vai ter que honrar.",
     "O arquétipo de cada opção vem de 'arquetipo', não da posição. Os slugs precisam existir em 'resultados' e em VALID_RESULTS do api/subscribe.js, e o material/index.html abre por eles.",
     "Imagens em assets/img/. Imagem nova entra lá antes de ser citada aqui."
