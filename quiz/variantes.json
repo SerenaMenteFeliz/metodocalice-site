@@ -445,8 +445,13 @@
             {
               "tipo": "curiosidade",
               "titulo": "Você já sabe o nome do que trava. <span class=\"mark\">Agora dá pra desinstalar.</span>",
-              "texto": "O diagnóstico acima é o começo. O Método Cálice é o caminho inteiro: entender como a crença foi instalada e desmontar ela, um dia de cada vez.",
-              "legendaLista": "O livro, 13 capítulos",
+              "texto": "O diagnóstico acima é o começo. O Método Cálice é o caminho inteiro.",
+              "produtoVisual": true,
+              "cta": true
+            },
+            {
+              "tipo": "espia",
+              "legenda": "O livro, 13 capítulos",
               "listaVisivel": [
                 "Por Que Sua Mente Está no Piloto Automático?",
                 "Por Que Mudar é Difícil?",
@@ -462,39 +467,42 @@
                 "Como as Crenças se Instalam Sem Você Perceber",
                 "Como Desinstalar o Que é Invisível",
                 "Como a Energia do Ambiente Molda Sua Mente"
-              ],
-              "cta": true
+              ]
             },
             {
               "tipo": "promessa",
               "titulo": "O que muda, no seu caso",
-              "rodape": "Não é sobre virar outra pessoa. É sobre parar de obedecer um código que alguém instalou em você."
+              "rodape": "Não é virar outra pessoa. É parar de obedecer um código que alguém instalou."
             },
             {
               "tipo": "entrega",
               "titulo": "O que você recebe",
               "itens": [
                 {
-                  "nome": "O livro completo",
-                  "texto": "13 capítulos, da mente no automático até como desinstalar o que é invisível."
+                  "destaque": "13",
+                  "nome": "Capítulos",
+                  "texto": "Do piloto automático até como desinstalar o invisível"
                 },
                 {
-                  "nome": "10 Dias de Prática Guiada",
-                  "texto": "Do Detox Mental à Integração. Um dia por vez, no seu ritmo."
+                  "destaque": "10",
+                  "nome": "Dias de prática",
+                  "texto": "Do Detox Mental à Integração, um por vez"
                 },
                 {
-                  "nome": "Notas pessoais por capítulo",
-                  "texto": "Pra registrar o que for aparecendo, onde o conteúdo está."
-                },
-                {
+                  "destaque": "∞",
                   "nome": "Acesso vitalício",
-                  "texto": "Sem turma, sem prazo, sem assinatura."
+                  "texto": "Sem turma, sem prazo, sem assinatura"
+                },
+                {
+                  "destaque": "✎",
+                  "nome": "Notas por capítulo",
+                  "texto": "Onde o conteúdo está, na hora que aparecer"
                 }
               ],
               "bonus": {
                 "selo": "Bônus",
                 "nome": "[PLACEHOLDER] Nome do bônus",
-                "texto": "[PLACEHOLDER] O que é e por que vale. Candidato de custo zero: “O Código Invisível”, o material que hoje é isca grátis do V1 e que no V2 ninguém mais recebe.",
+                "texto": "Candidato de custo zero: “O Código Invisível”, hoje isca grátis do V1, que no V2 ninguém mais recebe.",
                 "placeholder": true
               }
             },
@@ -510,8 +518,8 @@
             },
             {
               "tipo": "prova",
-              "titulo": "[PLACEHOLDER] Prova",
-              "texto": "[PLACEHOLDER] O Método Cálice nunca foi vendido: zero compras reais no banco. Não existe depoimento pra pôr aqui e inventar um seria fraude. Duas saídas honestas: (1) este bloco não existe até a primeira turma responder, ou (2) vira prova da GE (formação, história, audiência) em vez de prova de cliente. Decisão do Yan.",
+              "titulo": "Prova",
+              "texto": "Zero compras reais no banco: o Método Cálice nunca foi vendido, então não existe depoimento pra pôr aqui e inventar um seria fraude. Duas saídas: o bloco não existe até a primeira turma responder, ou vira prova da Ge (formação, história, audiência). Decisão do Yan.",
               "placeholder": true
             },
             {
@@ -524,19 +532,19 @@
                 },
                 {
                   "p": "Quanto tempo leva?",
-                  "r": "Os 10 dias pedem alguns minutos por dia. O livro você lê quando der: o acesso é vitalício e não expira."
+                  "r": "Os 10 dias pedem alguns minutos por dia. O livro você lê quando der: o acesso não expira."
                 },
                 {
                   "p": "Preciso fazer os 10 dias seguidos?",
                   "r": "Não. Seguidos ajuda, porque um dia prepara o outro, mas ninguém perde acesso por atrasar."
                 },
                 {
-                  "p": "Serve pro meu arquétipo específico?",
-                  "r": "O mecanismo é o mesmo pros quatro: como a crença foi instalada e como se desinstala. O que muda é onde você vai reconhecer a sua."
+                  "p": "Serve pro meu arquétipo?",
+                  "r": "O mecanismo é o mesmo pros quatro: como a crença foi instalada e como se desinstala. O que muda é onde você reconhece a sua."
                 },
                 {
-                  "p": "[PLACEHOLDER] E se não funcionar pra mim?",
-                  "r": "[PLACEHOLDER] Depende da decisão de garantia, que está em aberto. A pesquisa diz que reversão de risco é o item de maior alavanca em tráfego frio, e política de reembolso é promessa que alguém honra.",
+                  "p": "E se não funcionar pra mim?",
+                  "r": "[PLACEHOLDER] Depende da decisão de garantia, em aberto. Reversão de risco é o item de maior alavanca em tráfego frio.",
                   "placeholder": true
                 },
                 {
@@ -547,14 +555,14 @@
             },
             {
               "tipo": "autora",
-              "titulo": "[PLACEHOLDER] Quem escreveu",
-              "texto": "[PLACEHOLDER] Bio da Ge: formação, história e por que ela escreveu isto. Ela é a dona do produto e quem assina, então o texto tem que sair dela ou ser validado por ela antes de ir pro ar.",
+              "titulo": "Quem escreveu",
+              "texto": "[PLACEHOLDER] Bio da Ge: formação, história e por que ela escreveu isto. Ela é a dona do produto e quem assina, então o texto sai dela ou é validado por ela antes de ir pro ar.",
               "placeholder": true
             },
             {
               "tipo": "fechamento",
               "titulo": "O código foi instalado sem você escolher. <span class=\"mark\">Desinstalar é escolha.</span>",
-              "texto": "R$37, Pix, acesso na hora. Vitalício.",
+              "texto": "R$37, Pix, acesso na hora.",
               "cta": true
             }
           ]
